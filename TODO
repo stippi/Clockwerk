@@ -1,0 +1,187 @@
+TODO:
+
+---More Urgent---
+
+* Ticker Fade out/in at left and right boundary
+
+* only upload selected objects + dependencies...
+
+* Player needs to log the playback
+
+* New notification for ServerObject::SetTo() in Playlist and Schedule, so
+  that undo history can be cleared
+
+* Have a duplication mode for Playlists, in which certain referenced clips
+  are duplicated along side the playlist with the copies referenced by the
+  playlist copy.
+
+* display ScheduleItems with missing playlists as "<missing playlist>" instead
+  of <no playlist>, which is valid
+
+* store any meta data, not just those originally defined in the C++
+  code, but also those received from the server
+
+* make ServerObject notifications in MainWindow asynchronous!
+
+---Player---
+
+* optimize playback by figuring out the regions that changed at all and
+  reusing the contents of the intermediate buffer to fill those regions
+  (means to implement clipping regions)
+
+
+---Clockwerk---
+
+* when double clicking clips, keep the selected and show their properties
+  in the Properties list
+* define more keyboard shortcuts
+* allow to view certain properties on PlaylistItems (currently
+  always opacity)
+* curve editor for properties
+* enable dragging multiple clips at once in PickTool
+* implement GetIcon() for ClockClip
+* implement GetIcon() for MediaClip with thumbnail
+(* port ZoomSlider and use for TimelineView scrollview)
+
+* don't upload file data of video and bitmap clips if only
+  meta data changed (support the existing SHA property stuff)
+
+* allow drag&drop of clips onto stage (insert at current
+  playback frame and onto first available track with enough
+  room)
+
+* navigation feature
+
+* masks, clipping paths, create effects for masks
+
+
+---Controller/Player---
+
+* handle yet to be written ServerObject types
+	- display configuration (preparation done, see DisplaySettings
+		class, needs debugging and GUI for creation/configuration)
+* upload playback report (first Baby steps in shared/PlaybackReport)
+* upload status report
+* run a SHA check over all local files at certain time of day, the purpose
+  is to detect silent data corruption and report this in the logs
+
+
+---NewsFlow---
+
+---Updater---
+
+* beliebige Komponenten pro ClockwerkRevision
+* ClockwerkRevision nur nächst höhere Version runterladen
+* Keine neue Revision runterladen, wenn nicht installiert
+
+
+---Performance---
+
+* write fast 2x bilinear scaling for bitmaps
+* re-implement clipping regions in Painter
+* figure out unchanged regions from last rendered frame to the current,
+  apply this as clipping region to Painter
+
+
+---Use Cases---
+
+* user wants to "commit" media clip and meta data for that clip
+  (scope)
+  - would be nice if Clockwerk could query for all clips that
+    are ment for a specific scope, so user knows what clips
+    should go into the playlist for that scope
+
+* get a report what clips played for what time
+* know who commited a clip
+* enter device hardware configurations
+
+TASK LIST
+
+Steffen's Anregungen:
+
+---Clockwerk Features--------------------------------------------------------
+
+* An Position einfügen .. D.h. eigentlich gibt es so etwas ja schon .. 
+  allerdings nicht mit Auswirkung auf alle Tracks ..
+- das könnte m.E. bei Drücken der Shift-Taste passieren ..
+- d.h. ohne Shift Taste, werden nur die Elemente auf dem Track nach 
+  hinten geschoben
+- mit Shift-Taste die Elemente aller Tracks
+
+* Audio-Lautstärke-Kanal-Mix - für die Audio-Summe
+- wenn wir mehrere Audio-Kanäle haben
+
+* Marker im Trackfenster
+
+* Eine Art Ausrichtungslinien mit Snap im Playfenster
+- um Objekte punkgerecht auszurichten
+- ähnlich wie die Ausrichtungslinien bei Photoshop
+- am Besten wären davon mehrere Sets - als eine Art Frameaufteilung ..
+- gut wäre dann in der Verbindung eine Art Scale to next borders 
+  (horizontal max, vertical max, both (das letztere heisst ja soviel wie 
+  eine Skalierung mit unterschiedlichen Werte))
+
+* die Voransicht des ausgewählten Clips im Tabfenster neben den Properties
+
+* der Clipname als Headline in den Properties
+
+* Funktion "Remove clip and close gap" im Kontextmenü
+
+
+Ich finde die Art wie es Macromedia in Flash gemacht hat sehr gut und sehr 
+variabel .. Wenn man das so für Wonderbrush und Clockwerk (bzw. alle 
+Haiku-Apps) implementieren würde - dann wäre das wirklich ein richtig gutes 
+Argument !! D.h. :
+1. Jeder Bereich bis auf die Bühne kann ein und ausgeschaltet werden ..
+2. Die einzelnen Menüs sind entweder fest zentriert oder können frei bewegt 
+werden .. 
+3. Über die Pfeiltasten - können die einzelnen eingeklickten Bereiche 
+vergrössert bzw. ausgeblendet werden .. 
+
+
+* Für Fehler braucht man ein einblendbares "Log"
+
+
+* Property Kurve auf PlaylistItems:
+
+Ich habe nicht verstanden, warum gerade der Alpha-Wert durch die Kurve auf 
+dem Sequenz-Balken auf dem Track gesteuert wird und warum die Kurve nicht
+nach ganz oben geht. Ich denke es war um den Balken verschieben zu können.
+
+Ich hatte gerade beim Ausprobieren folgende Idee hierzu:
+a) die Kurve im Balken entspricht dem gerade gewählten Wert in der Properties 
+Liste (z.B. X-Translation, Y-Translation ..)
+b) Wenn kein Wert gewählt ist könnte auch ein Vorschaubild oder der Name oder 
+wie auch immer dargestellt sein .. damit kann man sich wesentlich schneller 
+in einer neuen Playlist orientieren ..
+c) mit einem rechte Mausklick auf den Balken und Kurve(n) bearbeiten oder auf 
+den Properties .. kommt ein Kurven Editor hervor .. der (ähnlich den 
+Subplaylists) die Trackdarstellung ersetzt .. Dieser Kurveneditor ermöglich 
+dann mit typisch mathematischen Funktionen oder direkter Manipulation durch 
+die Punkte oder Bezier-Kurven die Werte zu setzen .. 
+Evtl. gibt es auch typische Beschleunigungskurven .. (Idealer Fade out, 
+Gummiball) .. etc. pp. 
+
+--
+
+Die Properties, sowie die Tracks nehmen sehr viel Platz ein ..
+- Es wäre klasse, wenn man die Tracks horizontal und vertikal zoomen könnte .. 
+- Es wäre klasse, wenn der Player aus der Editor-Oberfläche herauskommen 
+könnte .. das heisst man seine Größe dynamisch ändern könnte ..
+--> dies könnte bei Solo automatisch passieren (d.h. damit schaltet man nur 
+einen Track an - und das Fenster wird nach unten verschoben)
+- oder einzelne Views komplett abschaltbar wären .. (Properties weg, 
+Mediafiles weg) ..
+- Wobei in diesem Fall schwebene Menüs / Properties a la BeOS oder Photoshop 
+m.E. besser bedienbar wären ..
+[Stephan: NIEMALS!!]
+
+Eine Toolbar wäre auch nicht schlecht - von der man das Steuern könnte ..
+Ein Filemenü braucht man (aus Platzgründen dann nicht unbedingt )
+
+Verschieben mehrerer Clips gleichzeitig auf der Timeline mit dem Pick-Tool
+
+
+
+
+

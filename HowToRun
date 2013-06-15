@@ -1,0 +1,53 @@
+TODO: This file contains outdated information that applies to components
+which have been stripped from the Open Source version! The main component of
+the Open Source version is Clockwerk, the editor. And this one can be launched
+like any regular BeOS/Haiku application.
+It is currently not possible to save project data outside of the
+"/boot/home/clockwerk" folder. Every created or imported clip will be copied
+into this folder. To save the current objects including the current playlist,
+invoke "Playlist->Save Objects". Clockwerk will always load the object library
+on start and open the last used playlist.
+---
+
+Settings:
+
+* All settings files go into ~/config/settings/mindwork-m3. Examples for
+  each settings file are to be found in the source subfolder for the
+  respective component.
+
+* Most important are the XML settings files named clockwerk_settings.
+
+* The Player uses file logging if the file
+
+  ~/config/settings/mindwork-m3/player_log_path
+
+  exists, and the path to the logfile is supposed to be
+  the only contents of this file.
+
+* The Player can also use an alternative logging framework with more
+  fine grained options configured in
+
+  ~/config/settings/mindwork-m3/player-log.properties
+  
+Notes:
+
+* For the Player to do anything, the Controller needs to be
+  running. The Player does not load objects by default, and does
+  not play a schedule by itself. If the Controller dies while
+  the Player is already playing, the playback continues uninterrupted.
+  A mechanism in the protocol between Controller and Player avoids
+  unintended updates when new instance of the Controller starts while
+  the Player is already playing. This is implemented via the file
+  "update-status" in the Clockwerk-XX folder where the Controller maintains
+  persistent synchronization status information. For example, the controller
+  knows wether an update was successful. Only successful updates trigger
+  a reload of the objects in the player!
+
+* Holding down the shift key while the Player is launching will
+  make it run in window mode. The same effect is achieved by
+  passing -t when launching it from the command line.
+
+* A running Player can be quit by pressing Command-Q, pressing
+  Command-H will hide the window. Command-F will toggle fullscreen
+  and window mode.
+

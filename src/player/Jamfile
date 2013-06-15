@@ -1,0 +1,153 @@
+SubDir TOP src player ;
+
+#local defines = [ FDefines ] ;
+#SubDirCcFlags $(defines) -pg ;
+#SubDirC++Flags $(defines) -pg ;
+
+# source directories
+local sourceDirs =
+	player
+	shared
+	shared/generic
+	shared/navigation
+	debug
+;
+
+local sourceDir ;
+for sourceDir in $(sourceDirs) {
+	SEARCH_SOURCE += [ FDirName $(TOP) src $(sourceDir) ] ;
+}
+
+
+# system include directories
+local sysIncludeDirs =
+	include/layout
+	include/freetype
+	include/xerces
+	include/xerces/dom
+	include/xerces/framework
+	include/xerces/sax
+	include/xerces/util
+	src/third_party/agg/include
+	src/third_party/agg/font_freetype
+;
+
+local sysIncludeDir ;
+for sysIncludeDir in $(sysIncludeDirs) {
+	SubDirSysHdrs [ FDirName $(TOP) $(sysIncludeDir) ] ;
+}
+
+
+# local include directories (relative to src/)
+local localIncludeDirs =
+	shared/clip_library
+	shared/clip_library/view
+	shared/document
+	shared/document/export
+	shared/document/import
+	shared/generic
+	shared/generic/commands
+	shared/generic/event_queue
+	shared/generic/observer
+	shared/generic/property
+	shared/generic/property/specific_properties
+	shared/generic/property/view
+	shared/generic/property/view/specific_properties
+	shared/generic/gui
+	shared/generic/gui/scrollview
+	shared/generic/gui/stateview
+	shared/generic/xml
+	shared/icons
+	shared/network
+	shared/painter
+	shared/playback
+	shared/playback/audio
+	shared/playback/video
+	shared/playback/view
+	shared/playlist
+	shared/playlist/rendering
+	shared/playlist/view
+	shared/schedule
+
+	debug
+	third_party/agg/font_freetype
+
+;
+
+local localIncludeDir ;
+for localIncludeDir in $(localIncludeDirs) {
+	SubDirHdrs [ FDirName $(TOP) src $(localIncludeDir) ] ;
+}
+
+local debugRealSourceFiles =
+	AllocationChecker.cpp
+	ElfFile.cpp
+	ElfImage.cpp
+	ElfSymbolPatcher.cpp
+	SymbolTable.cpp
+;
+
+local debugSourceFiles ;
+if $(ALLOCATION_CHECK) = 1 {
+	debugSourceFiles = $(debugRealSourceFiles) ;
+	local defines = [ FDefines ALLOCATION_CHECK=1 ] ;
+	SubDirCcFlags $(defines) ;
+	SubDirC++Flags $(defines) ;
+}
+
+# There's a typeinfo related problem with gcc 2.95.3 and some of BeOS'
+# libraries (in this case libgame.so, which has BTimeSource and BMediaNode
+# typeinfos, but no respective typeinfo functions). This causes
+# BMediaRoster->RegisterNode(TimeSource*) to crash in dynamic_cast. Compiling
+# with -fmultiple-symbol-spaces causes typeinfos and typeinfo functions for the
+# problematic classes to be generated and linked into the player, thus
+# working around this problem.
+if $(IS_GCC_4_PLATFORM) != 1 {
+	ObjectC++Flags TimeSource.cpp : -fmultiple-symbol-spaces ;
+}
+
+
+Application Clockwerk-Player :
+	# shared
+#	PlaybackReport.cpp
+	MonitorControl.cpp
+	SamsungMonitorControl.cpp
+	ScreenMode.cpp
+
+	# shared/generic
+	Debug.cpp
+	FileStatusOutput.cpp
+
+	# shared/navigation
+	PlayerPlaybackNavigator.cpp
+
+	# player
+	main.cpp
+	PlayerApp.cpp
+	PlayerVideoView.cpp
+	PlayerWindow.cpp
+	SimplePlaybackManager.cpp
+	TimeSource.cpp
+
+	# debug
+	$(debugSourceFiles)
+
+	:
+	# libs
+	libshared_common.a
+#	libshared_logging.a
+	libshared_player_editor.a
+#	libshared_xml.a
+	libshared_common.a	# must be last
+
+	be device game media tracker translation $(STDC++LIB) textencoding
+
+#	$(LIBFREETYPE) $(LIBXERCES)
+	freetype
+
+	libagg.a
+
+	:
+	# resources
+	Player.rsrc
+;

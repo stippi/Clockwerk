@@ -1,0 +1,30 @@
+Plan/Future
+
+Clockwerk is already a complex and powerful application, but to compete as a general purpose compositing and editing application, it has to grow in many areas. This ranges from improving the handling of objects on the timeline to implementing animatable effects and filters. Mindwork also envisions a framework for interactive playback similar to Flash and ActionScript.
+
+* Improve the timeline
+
+  - Display thumbnails on clips
+  - Animate properties more easily
+  - Move properties from clips to playlist instances
+  - Improve snapping features
+  - Automatic cross fades of overlapping clips
+  - ...
+
+* Add filters and effects
+
+  - Improve the capabilities of the internal rendering framework
+  - Implement a framework for filters and effects with animatable properties
+  - Implement an array of the most needed filters such as color correction,
+    video enhancing filters, ...
+  - Implement a framework for transition effects
+  - ...
+
+* Implement interactive playback
+
+  - Change the playback to allow non-linear, interactive playback
+  - Implement a virtual machine to run scripts in
+  - Make object properties and creation dynamic and scriptable
+  - ...
+
+

@@ -1,0 +1,12 @@
+NOTE: Outdated, because components beside Clockwerk itself have been stripped from the Open Source release and Mindwork does no longer exist. Clockwerk is being actively developed at OsDrawer.net.
+
+Why
+
+Mindwork is open sourcing it's MediaStation software framework for several reasons:
+
+1) The availability of such an advanced tool chain with focus on multi-media should have a positive impact on the Haiku community. It shows that complex, powerful software is available for the platform and is in active development.
+
+2) Mindwork has the resources to develop the software in certain directions which are important for it's target market, but making it available as open source means that interested developers can add features which are important for a much greater variaty of use cases and purposes. Mindwork does not have the resources to develop the software on all these fronts. On the other hand, the software as is represents a significant investment. Third party developers interested in multi-media applications have an advanced, solid and proven basis to build on.
+
+3) A multi media application such as Clockwerk stresses the operating system it runs on. This will encourage development of Haiku in general and the Media Kit in particular. For example, encoding support is missing in the Haiku Media Kit at the time of this writing, but Clockwerk as a video editor will encourage the completion of the Media Kit.
+

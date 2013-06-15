@@ -1,0 +1,431 @@
+SubDir TOP src editor ;
+
+# source directories
+local sourceDirs =
+	debug
+	editor
+	editor/auto_playlist
+	editor/client_settings
+	editor/commands
+	editor/display_settings
+	editor/gui
+	editor/gui_stage
+	editor/gui_timeline
+	editor/rendering
+	editor/rendering/view
+	editor/schedule
+	editor/tools
+	editor/tools/cut
+	editor/tools/delete
+	editor/tools/edit_on_stage
+	editor/tools/none
+	editor/tools/pick
+	editor/tools/transform
+	editor/tools/transform/commands
+	editor/user
+	shared
+	shared/commands
+	shared/generic
+	shared/generic/gui
+	shared/generic/gui/columnlistview
+	shared/generic/gui/dimensions_control
+	shared/generic/gui/panel
+	shared/generic/gui/panel/color_picker
+	shared/generic/gui/scrollview
+	shared/generic/gui/stateview
+	shared/generic/gui/text_input
+	shared/generic/observer
+	shared/generic/property
+	shared/generic/property/command
+	shared/generic/property/view
+	shared/generic/property/view/specific_properties
+	shared/generic/xml
+	shared/gui
+	shared/navigation
+	shared/network
+	shared/network/jobs
+	shared/playlist/rendering
+;
+
+local sourceDir ;
+for sourceDir in $(sourceDirs) {
+	SEARCH_SOURCE += [ FDirName $(TOP) src $(sourceDir) ] ;
+}
+
+
+# system include directories
+local sysIncludeDirs =
+#	include/cryptlib
+#	include/xerces
+#	include/xerces/dom
+#	include/xerces/framework
+#	include/xerces/sax
+#	include/xerces/util
+	src/third_party/agg/include
+	src/third_party/agg/font_freetype
+;
+
+local sysIncludeDir ;
+for sysIncludeDir in $(sysIncludeDirs) {
+	SubDirSysHdrs [ FDirName $(TOP) $(sysIncludeDir) ] ;
+}
+
+local cryptLib = $(LIBCRYPTLIB) ;
+#if $(DEBUG) > 0 {
+#	cryptLib = $(LIBCRYPTLIB_DEBUG) ;
+#}
+
+# local include directories (relative to src/)
+local localIncludeDirs =
+	shared/clip_library
+	shared/document
+	shared/document/export
+	shared/document/import
+	shared/generic/commands
+	shared/generic/event_queue
+	shared/generic/logging
+	shared/generic/observer
+	shared/generic/property/specific_properties
+#	shared/generic/xml
+	shared/gui
+	shared/icons
+	shared/navigation
+	shared/painter
+	shared/playback
+	shared/playback/audio
+	shared/playback/video
+	shared/playback/view
+	shared/playlist
+	shared/playlist/rendering
+	shared/playlist/view
+	shared/schedule
+
+	third_party/agg/font_freetype
+;
+
+local localIncludeDir ;
+for localIncludeDir in $(localIncludeDirs) {
+	SubDirHdrs [ FDirName $(TOP) src $(localIncludeDir) ] ;
+}
+
+# AllocationChecker files
+local debugRealSourceFiles =
+#	AllocationChecker.cpp
+#	ElfFile.cpp
+#	ElfImage.cpp
+#	ElfSymbolPatcher.cpp
+#	SymbolTable.cpp
+;
+
+debugSourceFiles = $(debugRealSourceFiles) ;
+
+# <pe-src>
+Application Clockwerk :
+	# allocation debugging
+	$(debugSourceFiles)
+
+	# shared
+#	ReferencedObjectFinder.cpp
+#	Synchronizer.cpp
+#	Uploader.cpp
+
+	# shared/commands
+	AddObjectsCommand.cpp
+	RemoveObjectsCommand.cpp
+
+	#shared/generic/gui...
+	DimensionsControl.cpp
+	LabelCheckBox.cpp
+	LabelPopup.cpp
+	LockView.cpp
+	NamePanel.cpp
+	StatusBar.cpp
+
+	#shared/generic/gui/panel/color_picker
+	ColorField.cpp
+	ColorPickerPanel.cpp
+	ColorPickerView.cpp
+	ColorPreview.cpp
+	ColorSlider.cpp
+
+	#shared/generic/observer
+	AsyncObserver.cpp
+
+	# shared/gui
+	ErrorLogWindow.cpp
+	InitProgressPanel.cpp
+#	NetworkStatusPanel.cpp
+	ObjectCLVItem.cpp
+	ObjectColumnListView.cpp
+	ObjectItem.cpp
+	ObjectListView.cpp
+	ScopeMenuField.cpp
+	StatusOutputView.cpp
+	TextViewPopup.cpp
+#	UploadObjectListView.cpp
+#	UploadSelectionPanel.cpp
+
+	# shared/navigation
+	EditorPlaybackNavigator.cpp
+
+	# editor
+	EditorApp.cpp
+	EditorSettings.cpp
+	main.cpp
+	MainWindow.cpp
+
+	# editor/auto_playlist
+	SlideShowWindow.cpp
+	PlaylistItemItem.cpp
+	PlaylistListView.cpp
+
+	# editor/client_settings
+	ClientSettingsListView.cpp
+	ClientSettingsWindow.cpp
+
+	# editor/commands
+	ChangeScheduleItemCommand.cpp
+	CloseGapCommand.cpp
+	DuplicateItemsCommand.cpp
+	InsertCommand.cpp
+	InsertOrRemoveTrackCommand.cpp
+	InsertScheduleItemsAnywhereCommand.cpp
+	InsertScheduleItemsCommand.cpp
+	MovePlaylistItemsCommand.cpp
+	MoveTrackCommand.cpp
+	RemoveScheduleItemsCommand.cpp
+	ReplaceClipCommand.cpp
+	SetAudioMutedCommand.cpp
+	SetNavigationInfoCommand.cpp
+	SetSoloTrackCommand.cpp
+	SetTrackPropertiesCommand.cpp
+	SetVideoMutedCommand.cpp
+	TrackingCommand.cpp
+
+	# editor/client_settings
+	DisplaySettingsListView.cpp
+	DisplaySettingsWindow.cpp
+
+	# editor/gui
+	ClipGroup.cpp
+	ClipListView.cpp
+	IconBar.cpp
+	LoopModeControl.cpp
+	TopView.cpp
+
+	# editor/gui_stage
+	EditorVideoView.cpp
+	PeakView.cpp
+	PlaybackController.cpp
+	PlaybackFrameView.cpp
+	PlayPauseButton.cpp
+	SeekSlider.cpp
+	SymbolButton.cpp
+	TransportControlGroup.cpp
+	VolumeSlider.cpp
+
+	# editor/gui_timeline
+	InsertClipsDropState.cpp
+	ItemForClipFactory.cpp
+	NavigationInfoPanel.cpp
+	PlaylistItemManipulator.cpp
+	PropertyManipulator.cpp
+	ReplaceClipDropState.cpp
+	SnapFrameList.cpp
+	SplitManipulator.cpp
+	TimelineView.cpp
+	TimeView.cpp
+	TrackHeaderView.cpp
+	TrackInfoView.cpp
+	TrackView.cpp
+
+	# editor/rendering
+	RenderJob.cpp
+	RenderPreset.cpp
+	TimeCodeOverlay.cpp
+
+	# editor/rendering/view
+	RenderSettingsWindow.cpp
+	RenderWindow.cpp
+
+	# editor/schedule
+#	InsertScheduleItemDropState.cpp
+#	PlaylistObjectListView.cpp
+#	ScheduleItemManipulator.cpp
+#	ScheduleListGroup.cpp
+#	ScheduleObjectListView.cpp
+#	SchedulePropertiesView.cpp
+#	ScheduleTopView.cpp
+#	ScheduleView.cpp
+#	ScheduleWindow.cpp
+#	TimeRangePanel.cpp
+#	WeekMenuItem.cpp
+
+	# editor/tools
+	ConfigView.cpp
+	StageTool.cpp
+	StageManipulator.cpp
+	TimelineTool.cpp
+	Tool.cpp
+
+	# editor/tools/cut
+	CutCommand.cpp
+	CutManipulator.cpp
+	CutTool.cpp
+
+	# editor/tools/delete
+	DeleteCommand.cpp
+	DeleteManipulator.cpp
+	DeleteTool.cpp
+
+	# editor/tools/edit_on_stage
+	EditOnStageTool.cpp
+	TableManipulator.cpp
+	TextManipulator.cpp
+
+	# editor/tools/none
+	NavigationManipulator.cpp
+	NoneTool.cpp
+
+	# editor/tools/pick
+	PickEndCommand.cpp
+	PickManipulator.cpp
+	PickMoveCommand.cpp
+	PickStartCommand.cpp
+	PickTool.cpp
+
+	# editor/tools/transform
+	DragStates.cpp
+	ObjectSelection.cpp
+	TransformBox.cpp
+	TransformTool.cpp
+	# editor/tools/transform/commands
+	TransformCommand.cpp
+	TransformObjectsCommand.cpp
+
+	# editor/user
+	UserListView.cpp
+	UserWindow.cpp
+
+	# shared/generic
+	ArgumentVector.cpp
+	Debug.cpp
+	ObjectTracker.cpp
+	ProgressReporter.cpp
+	support_settings.cpp
+
+	# shared/generic/property/command
+	AddKeyFrameCommand.cpp
+	ModifyKeyFrameCommand.cpp
+	PropertyCommand.cpp
+	RemoveKeyFrameCommand.cpp
+
+	# shared/generic/property/view
+	PropertyEditorFactory.cpp
+	PropertyEditorView.cpp
+	PropertyItemView.cpp
+	PropertyListView.cpp
+
+	# shared/generic/property/view/specific_properties
+	BoolValueView.cpp
+	ColorValueView.cpp
+	DurationValueView.cpp
+	FloatValueView.cpp
+	FontValueView.cpp
+	IntValueView.cpp
+	Int64ValueView.cpp
+	OptionValueView.cpp
+	StringValueView.cpp
+	SwatchValueView.cpp
+	TextInputValueView.cpp
+	TimeValueView.cpp
+
+	# shared/generic/gui
+	FontPopup.cpp
+	Group.cpp
+	IconButton.cpp
+	IconOptionsControl.cpp
+	InfoView.cpp
+	ListLabelView.cpp
+	ListViews.cpp
+	Manipulator.cpp
+	SwatchView.cpp
+
+	# shared/generic/gui/columnlistview
+	Column.cpp
+	ColumnHeader.cpp
+	ColumnHeaderView.cpp
+	ColumnHeaderViewStates.cpp
+	ColumnItem.cpp
+	ColumnListItem.cpp
+	ColumnListView.cpp
+	ColumnListViewColors.cpp
+	ColumnListViewStates.cpp
+	EasyColumnListItem.cpp
+	LabelColumnHeader.cpp
+	TextColumnListItem.cpp
+
+	# shared/generic/gui/panel
+	AuthenticationPanel.cpp
+	Panel.cpp
+
+	# shared/generic/gui/scrollview
+	Scrollable.cpp
+	Scroller.cpp
+	ScrollView.cpp
+
+	# shared/generic/gui/stateview
+	BackBufferedStateView.cpp
+	DropAnticipationState.cpp
+	MultipleManipulatorState.cpp
+	StateView.cpp
+	ViewState.cpp
+
+	# shared/generic/gui/text_input
+	InputTextView.cpp
+	NummericalTextView.cpp
+	StringTextView.cpp
+
+	# shared/generic/network/jobs
+#	CommandJob.cpp
+#	DownloadJob.cpp
+#	FinishTransactionJob.cpp
+#	GetChangeSetJob.cpp
+#	GetRevisionJob.cpp
+#	GetUnrevisionedChangeSetsJob.cpp
+#	GroupUploadJob.cpp
+#	InformingJob.cpp
+#	JobConnection.cpp
+#	ListFilesJob.cpp
+#	ListScopesJob.cpp
+#	RemoveJob.cpp
+#	StartTransactionJob.cpp
+#	UploadJob.cpp
+
+	# shared/playlist/rendering
+	PlaylistRenderer.cpp
+	SavePlaylistSnapshot.cpp
+
+	:
+	# libs
+	libshared_common.a
+#	libshared_logging.a
+#	libshared_network.a
+	libshared_player_editor.a
+#	libshared_xml.a
+	libshared_common.a	# must be last
+
+	be media tracker translation $(NETWORK_LIBS)
+	$(STDC++LIB) textencoding
+
+#	$(LIBFREETYPE) $(cryptLib) $(LIBXERCES)
+	freetype
+
+	libagg.a
+
+	:
+	Editor.rdef
+;
+
+# </pe-src>
+

@@ -1,0 +1,967 @@
+Sorry, German only. This file contains information of what changed between
+internal released/packaged versions of the Clockwerk distribution. Since SVN
+history of the source code could not be preserved, it's pretty much the only
+reference to how the software evolved over time. It does however only cover
+the last year of Clockwerk development and refers to many components which are
+no longer part of this Open Source version.
+
+
+Clockwerk Version History:
+
+_________________________________________________________________________
+
+2008 07 01 - 1
+
+SVN: r1883
+
+Clockwerk:
+* Beim Importieren von Dateien in die Objektbibliothek wird jetzt der
+  MIME-Typ der jeweiligen Datei als Clockwerk-Property an das Objekt
+  gehängt und später auch auf den Server übertragen ("mime" Property). Bei
+  Clockwerk-internen Objekten wird ebenfalls die Property gesetzt
+  (z.B. "text/xml" bei Playlisten).
+* Ein Problem mit der Clip-Liste wurde behoben: Beim Anpassen der Liste
+  an neue Filteroptionen wird jetzt der Auswahlzustand von Clips nicht mehr
+  zurückgesetzt. Außerdem können die Filteroptionen so angepasst werden,
+  dass bestimmte ausgewählte Clips auf jeden Fall zu sehen sind. Die
+  Filteroptionen werden nicht mehr sturr zurückgesetzt, wenn es nicht nötig
+  ist. Der Mechanismus wird jetzt für das "Show Clip" Feature (Doppelklick
+  auf Clip-Instanzen oder Kontextmenü) und auch für das Importieren aber auch
+  Erstellen von neuen Clips sowie für den Undo/Redo Mechanismus verwendet, 
+  so dass die neuen und somit ausgewählten Clips auch immer gleich zu sehen
+  sind.
+
+Tools:
+* Für alle alten Objekte liegt der Version ein Tool "check_mime" bei,
+  was die Mime-Property der Objekte sowohl überprüfen als auch anpassen
+  kann. Benutzung siehe Terminal (mit --help aufrufen). Nach der Anpassung
+  müssen die veränderten Objekte noch mit Clockwerk eingecheckt werden.
+  Reine Metadaten-Objekte werden nicht angefasst und haben keinen MIME-Typ.
+* Ebenfalls mit im Release ist check_sha256, welches die SHA-256 Property
+  der Objekte überprüfen und anpassen kann. Es kann auch für das Erkennen von
+  "Silent Data Corruption" benutzt werden wenn man es vielleicht alle halbe
+  Jahre auf den Clients mal ausführt.
+
+_________________________________________________________________________
+
+2008 06 24 - 1
+
+SVN: r1877
+
+Clockwerk/NewsFlow/Controller:
+* Es gibt jetzt eine Unterscheidung zwischen "Local-Removed" und
+  "Server-Removed" beim Objekt-Netzwerkstatus. Somit kommen die Editoren nicht
+  damit durcheinander, welche Objekte sie selbst auf Removed gesetzt haben und
+  noch einchecken müssen, und welche Objekte durch ein Update auf Removed
+  gesetzt wurden, weil sie bereits auf dem Server "entfernt" wurden.
+* Während ein Update läuft, werden die On-Disk-Metadaten der Objekte laufend
+  synchronisiert und nicht erst nach dem Update. Wenn aus irgend einem Grund
+  das Update nicht durchlief (Clockwerk Absturz, Deadlock, etc), dann sind
+  die Daten wenigstens konsistent. Ein erneuter Updateversuch gleicht dann
+  nur noch den fehlenden Rest ab.
+
+Clockwerk/Player:
+* Eine explizit gesetzte Repeat-Anzahl von Scheduleeinträgen wurden gar nicht
+  beim Laden wiederhergestellt, so dass das Feature noch nie funktioniert hat.
+* Das Navigation-Feature ist jetzt sowohl im Editor als auch im Player
+  implementiert. Mit einem Rechtsklick auf eine beliebige Clipinstanz lässt
+  sich eine Playliste angeben (am einfachsten per Drag'n'Drop aus der
+  Clipliste), zu der gesprungen werden soll, sobald der Nutzer mit der Maus
+  (oder am Touchscreen) auf die Fläche dieser Instanz innerhalb der Wiedergabe
+  klickt. Die Clipinstanz sollte grafisch sein (funktioniert also nicht mit
+  Tonclips). Die Klickfläche ist nur für die Lebensdauer der Instanz wirksam,
+  verschachtelte Playlisten werden unterstützt, wobei innere Instanzen
+  bevorzugt werden (Klickziel in einer Sub-Playliste hat höhere Priorität). Im
+  Player erfolgt der Wechsel von einem zu nächsten Frame und springt nach
+  einem Timeout (30 sec) wieder zurück zum normalen Schedule. Im Editor wird
+  einfach die aktuelle Playliste gewechselt.
+* Im Falle von nicht unterstützen Audioformaten konnte Speicher verloren gehen.
+
+Clockwerk:
+* Bessere Defaultsettings wenn Clockwerk das erste Mal gestartet wird.
+  Im Stand-Alone-Modus wird der Objekteordner einfach angelegt.
+* Im Playbackbereich wird jetzt ein Audiometer angezeigt. Der Peak-Ausschlag
+  wird gelb angezeigt und kann mittels Kontextmenü "eingefroren" werden. Ein
+  Klick in das Audiometer setzt den Peak zurück.
+* Wenn das Playback nie gezoomt wurde (Mausrad), dann wird automatisch immer
+  die Größe angepasst beim Wechsel von Playlisten unterschiedlicher Auflösung.
+* Ein (theoretisches?) Lockingproblem beim Beenden von Clockwerk in den
+  Media-Nodes wurde behoben.
+* Ein Deadlock beim Importieren von Objekten wurde behoben. Dies konnte zum
+  Beispiel beim Importieren von Bildern auftreten.
+* Ein potenzieller Deadlock beim Wechseln der Playliste wurde behoben. Auf
+  langsameren Rechnern trat er anscheinend reproduzierbar auf.
+* Nach einem vollständig erfolgreichen Update mit dem Server werden die
+  obsoleten Objekte (von einem anderen Editor auf dem Server als "Removed"
+  markiert) gelöscht. Vorher wird aber der Benutzer gefragt.
+* Beim Doppelklick auf Playlisten verschwinden nicht länger die Properties
+  der betreffenden Playliste.
+* Das Starten vom Update über's Netzwerk ist wesentlich beschleunigt, falls
+  die Clipliste viele Einträge hatte.
+
+Player:
+* Die Behandlung eines Media Server Neustarts ist jetzt wesentlich robuster
+  und erkennt auch, wenn der Media Server einfach gekillt wurde.
+* Monitor An/Aus Status für die Fernsteuerung hat nicht richtig funkioniert.
+* Falls ein ScheduleItem aus dem aktuellen Tag "hinausreicht", hatte der
+  Player den Teil nicht generiert der noch innerhalb des Tages lag.
+* Im Testmodus (wenn mit -t gestartet) funktionieren ein paar mehr Shortcuts:
+  F und Mausdoppelklick wechseln zwischen Vollbild- und Fenstermodus,
+  H versteckt das Fenster. Esc wechselt aus dem Vollbild- in den Fenstermodus.
+  Außerdem versteckt der Player die Maus nicht mehr im Testmodus.
+* Ein Problem beim Wechsel von einer zur nächsten Playliste hat ein einzelnes
+  schwarzes Bild verursacht, wo bereits die neue Playliste zu sehen sein sollte.
+
+Controller:
+* Wenn eine neue Version installiert wird, wird der neue Clockwerk-Ordner
+  noch nicht korrekt benannt, solange Komponenten installiert werden, erst
+  wenn die Installation vollständig ist, wird der Ordner so benannt, dass
+  der Watchdog ihn als Clockwerk-Installation erkennt. Dies sollte jegliche
+  Probleme mit unvollständigen Installationen oder abgebrochenen
+  Installationen (automatische Controller Restarts) beheben.
+
+ClientConfigurator:
+* Beim Starten wird die gedrückte Shifttaste nicht mehr überprüft, falls
+  der Configurator bereits eine Erstinstallation erkennt. Außerdem wird
+  das Fenster schon gezeigt, sobald die Shifttaste gedrückt wird, und nicht
+  erst nach dem 2 Sekunden Timeout.
+
+_________________________________________________________________________
+
+2008 04 09 - 1
+
+SVN: r1798
+
+Clockwerk/Player:
+* Die Tonausgabe hält sich jetzt an Solotracks und gemutete Tracks.
+* Clipinstanzen in der Playliste haben jetzt ein Feld "Max Auto Gain",
+  (default: 1.0, min 1.0, max 32.0) mit welchem sich die neue
+  automatische Lautstärkeregelung steuern lässt. Beträgt sie 1.0, gibt
+  es keine Veränderung. Ansonsten wird die Lautstärke mit einer gewissen
+  Verzögerung dynamisch bis um den Maximalfaktor angehoben. Die
+  Verzögerung lässt sich momentan nicht einstellen, sollte aber gut
+  funktionieren. Sie reagiert relativ schnell, aber man merkt es nicht,
+  wenn man es nicht weiß.
+
+NewsFlow:
+* Es gab eine nicht initialisierte Variable, was eventuell zu Abstürzen
+  geführt oder den Upload von Objekten verhindert hat.
+
+_________________________________________________________________________
+
+2008 03 27 - 1
+
+SVN: r1777
+
+Clockwerk:
+* Verhindert jetzt das versehentliche Einfügen einer Playliste in
+  sich selbst mit einer entsprechenden Warnung, deren Standardaktion
+  auf "Abbrechen" steht. Das Einfügen ansich ist noch möglich, weil
+  es eventuell für nette Effekte nutzbar ist und die Software dies
+  in der aktuellen Version auch wieder fehlerfrei verarbeitet.
+
+Clockwerk/NewsFlow:
+* Beim Starten funktioniert die Füllstandsanzeige für das Auflösen
+  der Objektabhängigkeiten besser.
+* Wenn ein Upload innerhalb einer Transaktion fehlschlägt, wird erstmal
+  versucht, nur diesen Upload zu wiederholen. Erst wenn dies fünfmal
+  fehlschlägt, wird die gesamte Transaktion wiederholt. Dies soll den
+  SHA-256 Fehler erträglicher machen und verhindern, dass bereits erfolg-
+  reich hochgeladene Dateien nochmals hochgeladen werden.
+
+NewsFlow:
+* Lädt jetzt auch die von Nachrichten mit Startzeit in der Zukunft
+  benötigten weiteren Objekte runter. (Ticket #184)
+
+_________________________________________________________________________
+
+2008 03 13 - 1
+
+SVN: r1761
+
+Controller:
+* Lädt jetzt auch CollectablePlaylisten runter, die ein Startdatum in
+  der Zukunft haben. Dies behebt den Fehler, dass die Apotheken Infos
+  erst nach Update anderer Objekte korrekt angezeigt wurden.
+* Beim Starten werden die Objekte in einem anderen Thread gescannt, was
+  vermeidet, dass die Pingantwort auf den WatchDog so lange verzögert
+  wird, dass dieser den Controller abschießt, weil er glaubt, dass er
+  hängt.
+* Eine Optimierung im ServerObjectManager beschleunigt bestimmte
+  Operationen von "Removed" Objekten ebenfalls.
+
+Clockwerk:
+* Hat jetzt eine Funktion zum Neuaufbau der Objektabhängigkeiten, somit
+  wird das Neustarten des Programms überflüssig, wenn
+  CollectablePlaylisten neu ausgewertet/eingesammelt werden sollen.
+
+_________________________________________________________________________
+
+2008 03 12 - 2
+
+SVN: r1752
+
+Updater:
+* Wertet jetzt wieder korrekt das Listing aus und kann neue Revisionen
+  auf der Basis bereits vorhanderer Componenten erstellen. Ältere Versionen
+  hätten immer komplett neue ClockwerkRevisionen eingecheckt, was auf
+  jeden Fall nicht erwünscht ist, denn diese Objekte sollen pro Scope
+  nur einmal existieren.
+
+_________________________________________________________________________
+
+2008 03 12 - 1
+
+SVN: r1748
+
+Alle:
+* ListFilesJob hat jetzt eine fortlaufende Ausgabe, das Listing kann
+  inzwischen sehr lange dauern, da sieht man jetzt, was passiert.
+* Wesentliche Reduzierung des Speicherverbrauchs von TextClips.
+* Abfang von "Kein Speicher mehr" Fehlern in Zusammenhang mit TextClips.
+* Upload von "On-The-Fly" Objekten hatte nicht mehr funktioniert. Das wird
+  im Moment nur vom Clockwerk-Updater verwendet, für das ClockwerkRevision
+  Objekt. Der Uploader funktioniert wieder.
+* Die controller-settings Datei ist aus ClockwerkRevision rausgeflogen.
+* Der WatchDog ist jetzt teil einer ClockwerkRevision und lässt sich somit
+  endlich über das System updaten.
+
+NewsFlow/Clockwerk:
+* Upload hat nur noch drei Retries statt bisher 10. In den meisten
+  Fällen bringen die Retries eh nichts, eigentlich nur wenn die
+  Verbindung kurz weg war.
+
+Clockwerk:
+* Playlisten zeigen jetzt in ihren Properties die Dauer zur Information
+  an.
+
+NewsFlow:
+* Lädt jetzt auch Objekte mit Removed Status (wichtig für's Commit).
+* Hat jetzt das "Remove Old News" Feature. Es setzt alle News, die
+  älter als 14 Tage sind, und deren zugehörige Objekte (Headline, Text,
+  Image, Sound) auf Removed. Beim nächsten Commit werden die Änderungen
+  auf den Server übertragen. Das Kommando lässt sich entweder bei noch
+  laufendem NewsFlow über den Undo Mechanismus rückgängigmachen, oder
+  durch Network->Update. Wenn die Änderungen erstmal auf dem Server sind,
+  lassen sie sich nicht so leicht rückgängig machen, aber die Objekte sind
+  nicht weg. Der positive Effekt ist die Bereinigung des Listings, wodurch
+  alle Anwendungen wieder deutlich schneller arbeiten.
+* Ein Fehler mit einer nicht-initialisierten Variablen wurde behoben,
+  wodurch NewsFlow vor allem beim Starten abstürzen konnte.
+* Korrigierte Template Namen für die Borken News und Sportnews.
+
+Controller:
+* Ein unsinniger Fall für die Rückwärtskompatibilität zu den alten Settings
+  wurde entfernt. (Alte Defaultserver Settings in neuem Ordner.)
+* Unterstützt jetzt absolute Pfade für Componenten in einer
+  ClockwerkRevision. Somit kann der WatchDog immer nach /boot/Clockwerk-0/
+  installiert werden. Weil damit bestehende Dateien überschrieben werden,
+  wurde die Installation so angepasst, dass es kein Problem ist, wenn der
+  Controller mitten in der Operation abgeschossen wird.
+
+Player:
+* Unterstützt jetzt optional auch den nicht-Overlay Modus (-b Option auf
+  Kommandozeile), damit man auch bspw. auch auf Systemen im VESA Modus
+  testen kann (Haiku).
+
+ACHTUNG: Zwei wichtige Dinge:
+1) Der WatchDog wird erst an die richtige Stelle installiert, wenn bereits
+  der neue Controller läuft. Es sind also zwei ClockwerkRevisions notwendig,
+  damit die Installation komplett wird.
+2) Die Behandlung von auf dem Server gelöschten Dateien funktioniert noch
+  nicht wieder in Clockwerk und NewsFlow. Im Moment werden lokale Objekte,
+  die nicht mehr auf dem Server sind (von jemand anderem gelöscht), 
+  einfach ignoriert. Insofern wirkt sich dann das schöne neue NewsFlow
+  Feature erstmal gar nicht auf andere Clockwerk Installationen aus.
+  Das Listing wird zwar kürzer, aber die Dateien werden nicht entfernt.
+
+_________________________________________________________________________
+
+2008 02 29 - 1
+
+SVN: r1713
+
+Alle:
+* Update auf die nächste Version vom Netzwerkprotokoll zur Kommunikation
+  mit den Servern. Das Löschen von Objekten funktioniert jetzt korrekt.
+* Das Listing der Objekte wird jetzt häppchenweise übertragen, so dass die
+  maximale Größe einer Netzwerknachricht konstant bleibt und nicht mehr
+  mit der Anzahl der Objekte wächst.
+* Es gibt einen neuen Cliptypen, den "Executor". Er kann einfach in
+  Playlisten instanziiert werden. Beim Abspielen (nur auf dem Player)
+  wird einmalig das in den Properties angegebene Script ausgeführt.
+
+
+_________________________________________________________________________
+
+2008 02 26 - 1
+
+SVN: r1697
+
+Alle:
+* Performanceverbesserung an zentraler Stelle beim Ändern von Properties.
+
+Player:
+* Überlebt jetzt einen media_server Neustart indem das Playback kurz
+  runtergefahren und dann neu initialisiert wird. Dadurch entsteht ein
+  Aussetzer mit schwarzem Bild von 2-3 Sekunden.
+
+
+_________________________________________________________________________
+
+2008 02 22 - 1
+
+SVN: r1677
+
+Clockwerk:
+* Rein-/Rauszoomen mit Scrollrad funktioniert jetzt in der
+  Timelineansicht.
+* Zoomen der Videovorschau funktioniert jetzt immer, wenn die Maus
+  über dem View schwebt, auch ohne vorheriges Anklicken.
+* Gedrückthalten der Schifttaste bewirkt auf der Bühne beim Transformieren
+  jetzt, dass bestimmte Einschränkungen aktiviert werden: Verschieben
+  nur horizontal oder vertikal, Vergrößern beeinflusst nur eine Richtung
+  statt beide, Rotieren erfolgt in größeren Schritten.
+* Wenn der Anfang oder das Ende eine Clips mit der Maus gezogen wird,
+  so folgt die Wiedergabe jetzt diesem Bild, damit man die Stelle besser
+  beurteilen kann.
+
+NewsFlow:
+* Deaktivierte Schaltflächen sehen nicht mehr so komisch aus (ZETA).
+* Der Stop-Knopf im Netzwerkfenster funktioniert jetzt wie in Clockwerk.
+* Neue Newstypen für "Borken Aktuell" (bor_07... Templatenamen) und
+  "Borken Sport" (bor_08... Templatenamen) wurden hinzugefügt.
+* Die Bearbeitung des Listings beim Updaten vom Server erfolgt jetzt etwas
+  schneller.
+
+Clockwerk/NewsFlow:
+* Der Stopknopf im Netzwerkfenster müsste nun auch einen Verbindungsaufbau
+  stoppen können. (Noch nicht getestet.)
+
+Controller/Player:
+* ACHTUNG: Es werden nur noch Nachrichten mit "Live" Playlistenstatus
+  gespielt. Abhängigkeiten von nicht-live News werden nicht mehr
+  runtergeladen.
+
+WatchDog:
+* Wartet jetzt länger auf eine "Ping" Antwort von Player und Controller,
+  bevor er annimmt, eine Komponente hätte sich aufgehängt, und sie abschießt.
+
+Clockwerk/NewsFlow/Controller:
+* Die maximale Größe von einzelnen Netzwerkprotokollnachrichten, wie
+  bspw. dem Listing, wurde von 10 auf 32 MB erweitert. Dies behebt
+  ein aktuelles Problem auf dem QA System (eigentliche Ursache vermutlich
+  der Integrationsserver, der News mehrmals eincheckt), wodurch Clients
+  sich nicht mehr updaten konnten.
+
+
+_________________________________________________________________________
+
+2008 02 19 - 1
+
+SVN: r1657
+
+Clockwerk/Player/NewsFlow:
+* Nach der Umstellung auf das neue Textrendering wurde der Alphawert
+  für Textobjekte ignoriert. In der neuen Version ist das behoben,
+  allerdings noch nicht ganz endgültig. Ein Problem würde man sehen,
+  wenn Textobjekte gleichzeitig animiert (skaliert, rotiert) würden
+  und dabei einen Alphawert kleiner 100% hätten. Also wenn abwechselnd
+  das beschleunigte und unbeschleunigte Textrendering zum Zuge kämen.
+  Dieses kommt nirgens vor und ist deshalb vorerst egal, aber ich muss
+  diesen Fehler natürlich noch beheben. Die Auswirkung wäre, dass die
+  Deckkraft (visuell) hin- und herspringen würde.
+
+
+_________________________________________________________________________
+
+2008 02 07 - 1
+
+SVN: r1653
+
+Clockwerk:
+* "Export Summary (by Name)" und "Export Summary (by Portion)" Menü-
+  einträge im Schedule Editor. Diese schreiben eine TXT Datei des 
+  aktiven Schedules auf den Desktop, in welchem sie die verwendeten
+  Playlisten tabellarisch auflisten (Einzeldauer, Gesamtdauer, Anzahl,
+  Anteil in %). "by Name" sortiert die Einträge nach Namen, "by Portion"
+  sortiert sie nach Anteil an der Gesamtdauer.
+
+NewsFlow:
+* Enthält jetzt ebenfalls eine Funktion zur Ausgabe der aktiven Nachricht
+  als JPG Datei auf den Desktop.
+
+
+_________________________________________________________________________
+
+2008 02 06 - 1
+
+SVN: r1649
+
+Player/Clockwerk/NewsFlow:
+* ScrollingTextClips (Ticker) verhalten sich ein bisschen mehr so, wie
+  wir es brauchen:
+  - In den Ticker Properties gibt es jetzt "Scrolling Speed" (in
+    Pixel/Sekunde), wodurch die Geschwindigkeit nicht mehr von der
+    Playbackrate abhängig ist.
+  - Außerdem neu ist "Scrolling Pos. Timeout". Ticker merken sich nämlich
+    jetzt für eine Zeit die letzte Scroll-Position. Diese Property ist
+    der Timeout in Sekunden. Wenn eine neue Playliste den selben Ticker
+    verwendet wie eine vormalige Playliste, und dies innerhalb des Timeouts
+    geschieht, dann setzt der Ticker dort fort, wo er das letzt mal war.
+  - Ticker bewegen sich jetzt nicht mehr in Clockwerk wenn das Playback
+    angehalten ist. Man kann sie jetzt durch Verschieben der Abspielposition
+    sogar vor- und zurückfahren.
+  - Die Standardposition für Ticker ist nicht mehr der untere Rand, was
+    bei skalierten Playlisten später zu schlimmen Verschiebungen geführt
+    hätte. Sie beginnen jetzt wie alle anderen Objekte ihr Leben in der
+    linken oberen Ecke der Bühne.
+  - Man kann in den Properties eine Breite für den Ticker eingeben.
+  - Die laufenden Buchstaben verschwinden jetzt außerhalb des Tickerrahmens.
+* CollectiblePlaylisten benutzen doch nicht mehr ihre Maximaldauer aus den
+  Properties. Dies führte in SequenceContainerPlaylisten zu unerwünschten
+  Ergebnissen. Der vormalige Fehler ist bereits dadurch behoben, dass
+  ClipPlaylistItems vor dem Abfragen der maximal Dauer jetzt die Abhängig-
+  keiten ihrer Clips auflösen. Dies behebt bereits das Problem, das manche
+  CollectingPlaylisten zu kurz waren.
+
+Clockwerk/Player:
+* Legen nicht mehr den komischen /boot/Clockwerk Ordner beim Starten an. Das
+  war ein Überbleibsel aus sehr alten Tagen.
+* Außerdem legen sie nicht mehr den /boot/home/clockwerk Ordner an. (Der
+  Controller kümmert sich darum, dass der konfigurierte Objektordner
+  existiert.)
+
+Clockwerk:
+* Zeigt jetzt einen Alert an, wenn der Objekteordner nicht existiert oder
+  sonst ein Fehler aufgetreten ist. Die Standardoption ist die Beendigung
+  des Programms.
+
+_________________________________________________________________________
+
+2008 02 04 - 1
+
+SVN: r1641
+
+Controller:
+* Objekte, die in CollectingPlaylisten referenziert werden, werden
+  jetzt vom Controller ignoriert, denn diese Objekte repräsentieren
+  nur den Zustand auf dem Editor, wo die CollectingPlayliste abge-
+  speichert wurde. Der Sinn einer CollectingPlayliste ist aber, dass
+  sich die Objekte aus dem gegebenen Set neu zusammengesucht werden.
+  Der Fehler hat dazu geführt, dass der Controller CollectablePlaylisten,
+  welche lokal noch vorhanden waren aber nicht im Server Listing
+  auftauchten, verwendet wurden, obwohl sie hätten ignoriert werden
+  müssen.
+* Die letzte bekannte SVN Revision wird jetzt vermerkt, so dass der
+  Controller eine neuerliche Synchronisation auslöst, falls er selber
+  eine neuere SVN Revision ist, obwohl der Server immer noch die gleiche
+  Objektrevision hat. So kann ein neues Controllerverhalten getestet
+  werden, ohne erst die Objekte auf dem Server verändern zu müssen,
+  damit der Controller das Listing neu auswertet.
+
+_________________________________________________________________________
+
+2008 02 01 - 1
+
+SVN: r1637
+
+Clockwerk/Player:
+* Wenn CollectingPlaylisten wie ganz gewöhnliche Clips in Playlisten
+  verwendet wurden, konnte es durch nicht garantierte Reihenfolge
+  beim Laden passieren, dass sie in der Playliste "abgeschnitten" wurden.
+  Jetzt ist es garantiert, dass sie die richtige Dauer haben. Die
+  Änderung bewirkt, dass jeglicher Clip, der in einer Playliste verwendet
+  wird, beim Laden zuerst seine Abhängigkeiten auflöst.
+
+Clockwerk:
+* Started jetzt WonderBrush als externen Editor auch unter ZETA korrekt.
+  (Die Funktion wurde seinerzeit unter BeOS R5 entwickelt...)
+
+Player:
+* Berechnet jetzt anhand der Bildschirmfrequenz die erwartete Dauer
+  für ein Bild. Der Wert ging vorher fest von 60Hz Bildschirmfrequenz
+  aus. Allerdings ist bei einem LCD Bildschirm diese Frequenz auch
+  eigentlich fest. Im Test mit meinem LCD Bildschirm konnte ich
+  merkwürdige Ruckler beobachten, wenn man ihn bspw. mit 59 Hz betreibt.
+  Die ließen sich dadurch erklären, dass der Bildschirm dann eines der
+  59 Bilder einfach doppelt anzeigt, um intern wieder auf 60 Hz zu
+  kommen. Das eigentliche Problem, was diese Änderung lösen sollte,
+  stellte sich aber als hinfällig heraus, weil es nur mit den alten
+  VGA LCD Bildschirmen im Büro auftritt (rythmisch springender Ticker).
+* Gibt jetzt Informationen über die Bildschirmfrequenz ins Terminal und
+  Log aus meldet fehlende Unterstützung für V-Sync.
+
+_________________________________________________________________________
+
+
+2008 01 30 - 1
+
+SVN: r1629
+
+Alle:
+* Die riesige BMessage, die das Objekt-Listing enthält, wird nicht
+  mehr unnötig kopiert und auch nicht mehr in eine andere BMessage
+  eingebettet, sondern direkt verschickt. Dies scheint den Fehler
+  mit falschen Anfragen zu beheben.
+* Fehler in der Verarbeitung von Properties Dateien im DOS Format
+  behoben.
+* Kleinere Fehler im Logging Code behoben.
+* Logging für die Konvertierung von XML <-> BMessages im Netzwerk-
+  code kann angeschaltet werden.
+* Hochladen und Runterladen unterstützen jetzt SHA-256 Überprüfung:
+  Hochladen: Der Wert wird generiert, so dass der Server einen
+  Übertragungsfehler bemerken kann.
+  Runterladen: Kein unnötiges Runterladen mehr und Bemerken von
+  Übertragunsfehlern.
+* Textrendering für nicht-skalierten und nur ganzzahlig verschobenen
+  Text ist jetzt 8 Mal schneller.
+
+Clockwerk/NewsFlow:
+* Ein manchmal auftretender Deadlock während Netzwerkübertragung wurde
+  behoben.
+
+Clockwerk:
+* Das inzwischen nutzlose Playlist->Open Menü wurde entfernt.
+
+Controller/Player:
+* Es ist jetzt möglich, den Pfad zum Objekteordner in den
+  controller_settings anzugeben (media_folder = "/boot/home/clockerk/")
+
+Controller:
+* Kleiner Fehler in der Ausgabe von lokal aber nicht auf dem Server
+  vorhandenen Objekten behoben
+* Gibt beim Starten jetzt auch die SVN Revision ins Terminal und Log
+  aus.
+* Benutzt jetzt wieder die Server Daten Revision, um überflüssiges
+  Runterladen des Listings alle 30 Sekunden zu vermeiden.
+* Falls mehrere Schedules für einen Tag zutreffen wird jetzt das
+  erste Schedule bevorzugt, welches den selben Scope hat wie die ClientID
+  des Players. Dies ermöglicht die Situation, wo ein Player in einem
+  Scope ist, welches bereits ein Schedule enthält, aber zusätzlich ein
+  Schedule speziell nur für einen Player angelegt wurde.
+
+Player:
+* Wenn der Player beendet wurde, während er noch die Objekte einliest,
+  kam es zum Crash.
+* Wenn das Video-Overlay der Grafikkarte nicht in Anspruch genommen
+  werden kann, behandelt der Player das jetzt als fatalen Fehler und
+  beendet sich. Dies behebt das Problem, dass der Player bei jedem
+  zweiten Start ohne Overlay läuft. Das eigentliche Problem scheint im
+  ZETA app_server zu liegen, der bei einem Absturz des Players das
+  Overlay nicht wieder richtig freigibt. Beim zweiten Start nach einem
+  Absturz erhielt der Player im Test zuverlässig wieder das Overlay.
+* Locking Problem im Audioplayback behoben, welches in neueren
+  Versionen des Players zu Abstürzen führen konnte.
+* Objekte mit "Removed" Status werden gar nicht mehr geladen, was das
+  Laden insgesamt beschleunigt, seit der Controller keine Objekte mehr
+  löscht.
+* Behebt einen Fehler, wo ein Schedule, welches den ganzen Tag die
+  selbe Playlist spielt, nur ein schwarzes Bild produziert.
+
+Watchdog:
+* Gibt jetzt automatisch Stacktraces ins Log aus, wenn irgendein
+  Programm gecrasht ist.
+
+_________________________________________________________________________
+
+
+2008 01 21 - 1
+
+SVN: r1593
+
+NewsFlow:
+* Make Live gibt den ausgewählten News gegebenenfalls eine längere
+  Gültigkeitsdauer, damit sie nach dem Befehl auch tatsächlich spielen.
+* Die Textfelder "Start Date" und "Valid Days" sowie das "Scope" Popup
+  funktionieren jetzt korrekt und verändern die ausgewählte News.
+
+NewsFlow + Clockwerk:
+* Aktueller Server und die Client-ID werden im Netzwerk Status Fenster
+  angezeigt.
+* Ein laufender Netzwerktransfer kann jetzt per Stop Knopf im Netzwerk
+  Fenster abgebrochen werden. Für Updates bricht es nach dem aktuellen
+  Download ab, für Commits erst nach der aktuellen Transaktion (!).
+* Die Anzahl von Objekten pro Transaktion wurde von 5 auf 20 erhöht.
+[Beide Änderungen sind natürlich nicht endgültig, aber verbessern 
+schonmal die Situation.]
+* Vor dem Commit wird jetzt eine Liste der hochzuladenen Objekte
+  angezeigt. An dieser Stelle kann man den Commit auch abbrechen. Im
+  Moment kann man noch nicht einzelne Objekte aus dem Commit rausnehmen,
+  sondern lediglich die Liste begutachten.
+* Statusausgaben im Netzwerkfenster erfolgen jetzt immer am Ende, nicht
+  an einer eventuellen Auswahl mitten im Text.
+* Wenn man im Netzwerkfenster etwas nach oben gescrollt hat, so erfolgen
+  aktuelle Ausgaben ohne automatisches Mitscrollen, sodass man beim
+  Lesen nicht gestört wird.
+* Für den Moment werden Objekte, die nach einem Update nicht mehr auf
+  dem Server zu sein scheinen, völlig ignoriert.
+
+Clockwerk:
+* Table Clip Objekte können wieder erzeugt werden.
+* Editieren von Text Clips auf der Bühne funktioniert deutlich besser,
+  obwohl Textselektion noch komplett fehlt und ein Hoch-/Runternavigieren
+  mit dem Cursor etwas aus der Spur läuft.
+
+_________________________________________________________________________
+
+
+2007 12 19 - 1
+
+SVN: r1562
+
+* Der Ort der vielen Settingsdateien wurde vereinheitlicht:
+  - alle Dateien leben jetzt in /boot/home/config/settings/mindwork-m3
+  Controller:
+  - clockwerk_default_server & clockwerk_client_id gibt es nicht mehr
+  - controller-settings -> controller_settings, beinhaltet wieder den
+    den Default Server (property "server") und die Client-ID ("client_id")
+  Clockwerk:
+  - main_settings -> clockwerk_ui_settings
+  - clockwerk-settings -> clockwerk_settings
+  - render_settings -> clockwerk_render_settings
+  Player:
+  - optionale Datei player_log_path mit Pfad zur gewünschten Log-Datei
+  NewsFlow:
+  - newsflow-settings -> newsflow_settings
+  - news_flow_settings(?) -> newsflow_ui_settings
+  Watchdog
+  - lädt watchdog.properties und watchdog-log.properties von der neuen
+    Stelle
+
+* Clockwerk und Newsflow versuchen *zuerst* die Settings Datei aus dem
+  Applikationsordner zu laden, damit man sehr einfach Clockwerk-Installationen
+  mit abweichenden Settings auf dem selben Rechner parallel betreiben kann
+* Der Controller versucht zuerst die Settings von der neuen Stelle zu laden
+  und lädt bei Fehlschlag die alten Dateien, somit ist er rückwärtskompatibel
+  zu den existierenden Installationen
+* Der Watchdog ist NICHT rückwärtskompatibel!
+* Die *.properties Dateien dürfen jetzt auch im Windowsformat vorliegen
+* Der Controller gibt jetzt Fehler ins Terminal aus, *wo* er die Settings-
+  datei erwartet hat oder wenn kritische Properties fehlen.
+
+* Der ClientConfigurator überprüft beim Starten, ob ein Client bereits
+  konfiguriert ist, und beendet sich innerhalb 2 Sekunden, wenn nicht die
+  Shift-Taste gedrückt ist. Somit kann man ihn im UserBootscript immer
+  starten und kann jeden Client umkonfigurieren, indem man ihn mit
+  gedrückter Shift-Taste hochfährt
+
+* Das neue Logging Framework von Ingo ist jetzt in allen Komponenten
+  verfügbar, Controller und Player haben bereits entsprechende
+  Einstellmöglichkeiten, siehe controller-log.properties und
+  player-log.properties
+
+* Player hat jetzt Command-F Shortcut zum Wechseln zwischen Vollbild
+  und Fenstermodus
+
+* Crashing-Bug im r1530 Player behoben, der auftrat, wenn das Schedule
+  zu ende war
+
+* Clockwerk/Newsflow enthalten Code, der ein eventuelles Problem im BFS
+  umgehen soll, bei dem Dateien, die offensichtlich gelesen werden können,
+  eine Länge von 0 Byte haben sollen. Diese müssten nun trotzdem korrekt
+  eingecheckt werden (WARNUNG: Test steht noch aus!)
+
+_________________________________________________________________________
+
+
+2007 12 12 - 1
+
+SVN: r1530
+
+* In Clockwerk und NewsFlow wurde die Steuerung der Netzwerk Features
+  komplett ins Netzwerkstatusfenster verschoben. Somit kann man alles
+  direkt von dort aus machen. Die Änderung ist noch nicht so gut getestet,
+  der "Stop" Knopf ist bislang noch völlig ohne Wirkung.
+* Im Player wird jetzt verhindert, dass sich mehrere Playlisten aus welchen
+  Gründen auch immer (Anpassung der Systemzeit, Fehler im Schedule, etc)
+  überlappen können.
+* Der Controller wertet mehr Situationen als bislang als "Fehler des
+  Synchronisierungsvorgangs", vor allem auch, wenn er mitkriegt, dass
+  etwas im Objektlisting nicht stimmen kann. Somit wird der Synchronisations-
+  vorgang einfach nochmal gestartet und vor allem gelangt keine Update
+  Nachricht an den Player. Erst wenn wirklich alles glattgelaufen ist.
+
+_________________________________________________________________________
+
+
+2007 12 10 - 1
+
+SVN: r1527
+
+* Der Controller liest jetzt den Default-Server nicht mehr aus der XML
+  Settings Datei, sondern aus /boot/home/config/settings/
+  clockwerk_default_server. Somit behält jeder Rechner seinen irgendwann
+  bei der Installation angegebenen Server, die Server aus dem
+  ClientSettings Objekt überschreiben den, aber er bleibt als dritter
+  Server präsent, falls die anderen beiden nicht funktionieren
+* Der Controller merkt sich jetzt die letzte bekannte Server Revision
+  (letzte globale Revision und lokale Revision des Servers). Ändern sich
+  beide Zahlen nicht, wird kein Listing über's Netzwerk geschickt und die
+  CPU Last sinkt deutlich, weil der Controller das Listing nicht verarbeitet,
+  wobei immer sämtliche die XML Daten geparst werden um nach den Dependency
+  Objekten zu suchen. Das ist wiederum auch gut für den Festplattencache,
+  der jetzt nicht mehr vom Controller unnötig gestört wird.
+_________________________________________________________________________
+
+
+2007 12 07 - 1
+
+SVN: r1524
+
+* SoundView klarer abgegrenzt in NewsFlow
+* Listen-Filteroptionen in NewsFlow sind jetzt persistent
+* Neuer Filtertyp "DPA Sport" in NewsFlow
+* Objektlisten in Clockwerk und NewsFlow sind jetzt alphabetisch sortiert,
+  die Sortierung und der Aufbau der Listen ist jetzt wesentlich schneller
+* SoundClips können mittels "Remove" Knopf in NewsFlow auch wieder entfernt
+  werden
+* Verbesserte Meldung vermisster Fontdateien in Clockwerk/Player/NewsFlow
+  (nur noch eine Meldung pro Font)
+* Emailfunktion zum Sound anfordern in NewsFlow implementiert, funktioniert
+  mit BeMail (Betreff, An, Text & Anhang der JPG Datei der betreffenden News)
+* Import von Sound Clips mittels Drag&Drop auf NewsFlow SoundView implementiert
+* neue "Font Hinting" Property für Text Clips, mittels derer das Hinting
+  abgeschaltet werden kann, damit Buchstaben unverzerrt erscheinen und der
+  Textlauf optisch perfekt wird (dafür weniger scharf, aber mehr wie in
+  den Photoshop Vorgaben)
+* Cut/Copy/Paste funktioniert jetzt im Textcontrol über der Clipliste in
+  Clockwerk, mittels dessen man nach Nameninhalt filtern kann
+* Maximale Hierarchietiefe von verschachtelten Playlisten wesentlich verringert,
+  da es insbesondere bei zyklischen Playlisten zum Einbruch des Systems kommen
+  konnte, wenn zu viele Videos instanziiert wurden
+
+_________________________________________________________________________
+
+
+2007 11 29 - 1
+
+SVN: r1502
+
+* Filter nach "Name enthält" für die Clipliste implementiert
+* Selektion des Clips von der Clipinstanz aus (Doppelklick oder Kontextmenü)
+* Kosmetische Fehler in der Zeitanzeigenleiste behoben
+* Fehlende automatische Tracknamenanzeige bei Muted und Solo Tracks behoben
+* Clipinstanzen mit Audio und/oder Video abgeschaltet werden in Kursiv-
+  schrift angezeigt (sollten besser kleine Icons sein...)
+
+_________________________________________________________________________
+
+
+2007 11 28 - 1
+
+SVN: r1489
+
+* Fehler in Textrendering behoben, die zu unscharfem Text führten
+* Referencable.o war in keinem Programm korrekt eingelinkt, zumindest
+  nicht in aktueller Version, keine Ahnung, was das für subtile Probleme
+  bereiten konnte
+* NewsFlow hat die Option, nur News mit bestimmtem Maximalalter runterzuladen
+* In der NewsFlow Liste kann man darüber hinaus News bestimmten Alters
+  ausblenden
+* In Clockwerk und NewsFlow wird sofort beim Anstoßen des Updates oder
+  Commits etwas ins Netzwerkstatusfenster ausgegeben
+* NewsFlow Audiofile Import vorbereitet (noch nicht fertig)
+* Alte Objekte werden vom Controller nicht mehr automatisch gelöscht, sondern
+  nur, wenn dies in den ClientSettings angegeben ist.
+  
+_________________________________________________________________________
+
+2007 11 23 - 1
+
+SVN: r1464
+
+ich habe nochmal ein Update hochgeladen. Dieser "Verbindungsburst" sollte 
+nicht mehr auftreten, kannst Du das bestätigen? Vielleicht stand ja der 
+Absturz damit in Verbindung, bitte schreib mir auch, wenn der Absturz 
+_nicht_ mehr auftritt.
+
+Player, Controller und Clockwerk verarbeiten jetzt wieder nicht-Live News 
+in den CollectingPlaylisten. Diese Version sollte also wieder verwendbar 
+sein, bis wir das mit dem Integrationsserver und NewsFlow richtig 
+eingerichtet haben.
+
+_________________________________________________________________________
+
+2007 11 20 - 1
+
+SVN: r1459
+
+* Clockwerk zeigt einen kleinen Splashscreen beim Starten mit Progressanzeige
+* Starten von Clockwerk etwas schneller
+* Export von CSV Dateien im Schedule Editor
+* Neuer Cliptyp "Timer" (für Timer- und Countdownanzeigen)
+* ?
+
+_________________________________________________________________________
+
+2007 10 24 - 1
+
+SVN: r1394?
+
+* Falls im Listing komische Einträge sind, gibt es eine Ausgabe (Logging), 
+ebenfalls wenn die Anzahl der Einträge für IDs, Typen und Versionen nicht 
+gleich sind.
+
+* Die Zeitdauer ohne Verbindung, bis der sekundäre Server benutzt wird, ist 
+jetzt das 10fache des Pollingintervals. Somit reduziert es sich bei 
+halbminütigem Polling auf fünf Minuten, statt wie bisher eine halbe Stunde 
+(was seit dem 20minütigen Neustartinterval nicht mehr funktionieren konnte).
+
+_________________________________________________________________________
+
+2007 10 23 - 1
+
+SVN: r1388? oder r1392?
+
+* Ingos Arbeit am Netzwerk, der Controller erkennt Fehler an der Verbindung 
+korrekt und ist in der Lage, die Verbindung neu herzustellen (auch DSL 
+Problem sollte gelöst sein). (Sollte auch Clockwerk und NewsFlow 
+entsprechend robuster machen.)
+
+* Clockwerk und NewsFlow haben in der letzten Version nicht korrekt alle 
+Objekte runtergeladen.
+
+* Der Controller wiederholt den Updateprozess so oft, bis er fehlerfrei 
+durchlief. Erst dann werden nicht mehr benötigte Objekte auf "Removed" 
+gesetzt und gelöscht. Und erst dann wird dem Player gesagt, dass er die 
+Objekte neu einlesen kann.
+
+(Übrigens, wenn ein Download nicht durchlief wird er beim nächsten Mal 
+wieder an der Stelle aufgenommen - das ist schon länger so. Jedenfalls 
+sollte es deshalb kein Problem sein, dass er es solange versucht, bis es 
+klappt. Denn die Chance, dass es dann mal klappt ist durch das "Continue 
+Feature" sehr groß.)
+
+
+Kurzum, dieses Update sollte eine Menge Probleme lösen. Es bleibt noch das 
+Problem mit dem mysteriösen Anfragen komplett falscher Versionen oder nicht 
+existierender Objekte. Wie es dazu kommen kann habe ich immernoch keine 
+gute Idee, allerdings hatte sich ja Ingo angeboten, das zu übernehmen.
+
+
+_________________________________________________________________________
+
+2007 09 27 - 1
+
+SVN: r1289
+
+* Client spricht wieder mit Protokoll 1 Servern
+* MasterPlayliste auf Player wird korrekt gelöscht wenn sich Objekte
+  updaten (neues Schedule, Mitternacht...)
+* lauter Verbesserungen beim Schedule-Editor
+* Editor lädt wirklich alle Objekte (auch alle ClientSettings) vom Server
+* Editor benutzt das Objektverzeichnis, welches in den editor-settings
+  angegeben ist
+* Render Funktion im ScheduleEditor (von bis)
+* NewsFlow Verbesserungen
+
+_________________________________________________________________________
+
+2007 09 12 - 2
+
+SVN: r1218
+
+Mit dem Updater kann das Update folgendermaßen 
+ins System eingecheckt werden:
+
+
+Clockwerk-Updater --server <die Live IP> --clientID steffen01 --comment 
+"SVN Revision 1218, 20070912-2, Controller applies ClientSettings 
+correctly, switches between primary and secondary server if applicable, 
+player has print playlist option, fix to avoid empty attributes" --player 
+./Clockwerk-Player --controller ./Clockwerk-Controller
+
+
+Später können dann mittels dem Befehl:
+
+Clockwerk-Updater --server <die Live IP> --clientID steffen01 --info
+
+die entsprechenden Informationen abgefragt werden.
+
+Parallel lade ich gerade ein neues Image für den Player hoch, wo dieses 
+Update schon drauf ist. Die Version ist relativ gut getestet. Besonders das 
+Anwenden der ClientSettings. Das Löschen der alten Revisionen funktioniert. 
+Clockwerk-0 bleibt dabei erhalten, es werden aber auch die Dateien der 
+aktuellen Version über die entsprechenden Dateien in Clockwerk-0 
+drüberkopiert. Also bleiben am Ende die Ordner Clockwerk-0 und 
+Clockwerk-<letzte Revision> übrig, jeweils mit gleichem Inhalt. In 
+Clockwerk-0 sind dann noch zusätzlich der Watchdog und ClientConfigurator 
+drin.
+
+Der Controller gibt ein wenig mehr Auskunft: welche Revision gerade läuft, 
+wenn ein Server lange Zeit nicht erreicht werden konnte und der nächste 
+ausprobiert wird, wenn ClientSettings angewendet werden, etc. Das wird aber 
+momentan immernoch nicht in eine Datei geloggt. Das sieht man also nur, 
+wenn man den Controller im Terminal laufen lässt oder per SSH startet. 
+Darum könnte ich mich als nächstes kümmern. Es würde sehr schnell gehen, 
+erstmal nur in ein rollendes Log zu schreiben. Im nächsten Schritt dann der 
+zeitgesteuerte Upload der Logs auf den Server.
+
+_________________________________________________________________________
+
+2007 09 10 - 1
+
+SVN: r1196
+
+ein Update nur für den Editor, darin enthalten die gewünschte 
+Funktion zum Duplizieren von Schedules. Dieses Update sollte problemlos als 
+Ersatz für die vormalige Version zu verwenden sein. Eventuell kommen 
+Warnungen auf der Kommandozeile, dass beim ClientSettings Objekt Attribute 
+nicht gelesen werden konnten, die können getrost ignoriert werden.
+
+_________________________________________________________________________
+
+2007 09 06 - 1
+
+SVN: r1185
+
+ Am Player habe ich noch minimal was geändert zu 
+der Version die jetzt eingecheckt ist. Habe nur die Sanity-Checks nochmals 
+erweitert, aber das muss nicht dringend eingecheckt werden.
+
+Am Editor habe ich am Scheduleeditieren gearbeitet. Jetzt kann man alle 
+Controls benutzen und es gibt auch Undo/Redo dafür. Vorher konnte es auch 
+passieren, das nach bestimmten Formen von Änderungen Clockwerk nicht zum 
+Speichern aufgefordert hat, und es auch nicht tat. Und dann auch nicht eine 
+neue Version eingecheckt hat.
+
+Es ist übrigens bereits ein ClientSettings Objekt eingecheckt. Von MS0006. 
+Es hatte keinen Namen (war unsichtbar in der Liste) und liegt im "all" 
+Scope. Ist allerdings nicht schlimm, weil der Controller die ServerIP 
+eingehend prüft, bevor er sie verwendet. Das Objekt kann also richtig 
+angepasst und dann verwendet werden. Auch der Verschieben in einen anderen 
+Scope sollte kein Problem sein.
+
+_________________________________________________________________________
+
+2007 09 05 - 2
+
+SVN: r1179?
+
+also bei mir läuft das Update soweit durch. Manchmal bricht die Verbindung 
+ab, aber er macht weiter. Anbei eine Version, in der das nervige Problem 
+mit dem Network Fenster behoben ist.
+
+_________________________________________________________________________
+
+2007 08 23 - 1
+
+SVN: r1121?
+
+dieses Update behebt einen Crashing-Bug im Controller (tritt mit einiger 
+Wahrscheinlichkeit bei Verbindungsabbruch während Download von Objekten 
+auf). Außerdem wird das Problem der abgeschnittenen Audiokommentare bei 
+einigen Playlisten behoben. Die Commandline-Ausgaben im Controller wurden 
+verbessert und es wird jetzt eine Art Statusanzeige beim Download größerer 
+Dateien im Controller und Editor angezeigt.
+
+Der Ingo hat in den aktuellen Server eine Funktion eingebaut, die mir 
+erlauben würde, bereits angefangene Downloads fortzusetzen. Kannst Du mir 
+bitte bescheidgeben, wenn Du alle Server gegen die aktuelle Version 
+austauschen konntest? Erst dann kann ich dieses Feature im Controller 
+nutzen.
+
+
+
+

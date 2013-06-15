@@ -1,0 +1,100 @@
+loading symbols
+segment violation occurred
+_malloc_internal:
+_malloc_internal:
++0159  ec0601ad:   *        0c7889    movl    %edi, 0x0000000c(%eax)
+Clockwerk:sc
+   frame         retaddr
+fcffba78   ec060ff4  _malloc + 0000002c
+fcffba9c   ec05494f  unchecked_malloc + 00000047
+fcffbab4   ec05d51e  __builtin_new + 0000001e
+fcffbad4   800ab4bf  PlaybackManager::SetPlayMode(long, bool) + 0000001f
+fcffbb14   800aae9b  PlaybackManager::Init(float, long, bool, float, long, long) + 0000026f
+fcffbb54   800a8809  NodeManager::FormatChanged(BRect, float) + 00000141
+fcffbbc4   800a8676  NodeManager::Init(BRect, float, long, bool, float) + 000000be
+fcffbc04   8004f1f9  MainWindow::_Init(void) + 0000097d
+fcffbcf4   8004e1dc  MainWindow::MainWindow(ClockwerkApp *, Document *) + 000000dc
+fcffbd34   8004cdfc  ClockwerkApp::ReadyToRun(void) + 0000003c
+fcffbd74   ec18faeb  BApplication::DispatchMessage(BMessage *, BHandler *) + 000001cf
+fcffbf94   ec198a39  BLooper::task_looper(void) + 0000043d
+fcffc260   ec191d2c  BApplication::Run(void) + 0000005c
+fcffc274   8004c5ce  main + 0000003e
+fcffc474   8004c285  _start + 00000061
+Clockwerk: 
+
+just starting Clockwerk
+
+------------
+
+it appears that sometimes, the CurrentFrame is not updated
+along with the PlaybackManager. Seems to be a setup problem
+with the PlaybackManager node framework
+
+
+------------
+
+happened just once ever: The "frame generator" in the editor can crash
+in the shutdown procedure in the RenderPlaylist, presumely, the list
+is already deleted while the VideoProducer is still up...
+
+------------
+
+adjusting the font of the clock clip doesn't work (loading the new font)
+
+------------
+
+dragging a playlist item down onto new tracks doesn't adjust the scrollbars
+
+------------
+
+loading symbols
+segment violation occurred
+PlaybackManager::PlayMode(void) const:
+PlayMode__C15PlaybackManager:
++001f  801a3287:   *        30408b    movl    0x00000030(%eax), %eax
+w>Clockwerk:sc
+   frame         retaddr
+fd221bc8   801a325b  PlaybackManager::IsPlaying(void) const + 0000001f
+fd221bf8   800c6c29  MainWindow::MessageReceived(BMessage *) + 000002b1
+fd221c48   ec254635  BWindow::DispatchMessage(BMessage *, BHandler *) + 000007c5
+fd221cac   ec2530ae  BWindow::task_looper(void) + 000003d2
+fd221d28   ec19ae46  BLooper::_task0_(void *) + 00000036
+fd221d3c   ec05650d  thread_start + 00000039
+w>Clockwerk: 
+
+while quitting Clockwerk
+
+------------
+
+Playlists now update their duration in the "duration info" property. When
+dragging a playlist item to make the playlist longer, the duration is
+updated, but when using Undo, the duration is not updated (at least there
+is no update in the property list)
+
+------------
+
+When the GroupUploadJob removes objects which are not for example Playlists,
+and have no listeners, if the objects are actually freed by calling Release()
+in the GroupUploadJob - asynchronous notifications which try to dynamic_cast
+the now invalid pointer, will segfault.
+
+------------
+
+On Haiku, only seen once until now. The return value of BBitmap::InitCheck() should be B_NO_SUPPORTED for overlays on my current setup, but it is B_NO_MEMORY. The output below might hint at a problem with BBitmap and app_server link communication.
+
+/Data/home/develop/Clockwerk> /boot/Clockwerk-0/Clockwerk-Player -t -b
+2008-05-02 14:34:58.099 FATAL [Clockwerk-Player] init_logging - Player starting, revision 1814...
+2008-05-02 14:34:58.099 INFO  [Clockwerk-Player] init_logging - using log.properties: /boot/home/config/settings/mindwork-m3/player-log.properties
+player started, SVN: 1814
+init playback with size: 684 x 384
+using full framerate
+screen refresh rate: inf Hz, estimated retrace duration: 0 ﾂｵs
+unable to obtain overlay, attempt 1 of 1
+failed creating overlay 1 (YCbCr422, 684x384): Invalid Argument
+  B_YCbCr420 overlay supported: no
+  B_YCbCr444 overlay supported: no
+  B_RGB32 overlay supported: no
+Painter::AttachToBuffer() - buffer->InitCheck(): Out of memory
+PlayerWindow::InitPlayback() - failed to init playback: Operation not supported
+program terminated with fatal error: Operation not supported
+

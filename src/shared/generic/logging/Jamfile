@@ -1,0 +1,25 @@
+SubDir TOP src shared generic logging ;
+
+# local include directories (relative to src/)
+local localIncludeDirs =
+	shared/generic
+;
+
+local localIncludeDir ;
+for localIncludeDir in $(localIncludeDirs) {
+	SubDirHdrs [ FDirName $(TOP) src $(localIncludeDir) ] ;
+}
+
+
+StaticLibrary libshared_logging.a :
+	ConsoleLogAppender.cpp
+	InternalLogger.cpp
+	LogAppender.cpp
+	LogBuffer.cpp
+	Logger.cpp
+	Logging.cpp
+	LogMessageInfo.cpp
+	RollingFileLogAppender.cpp
+;
+
+MakeLocate libshared_logging.a : [ FDirName $(OBJECTS_DIR) lib ] ;

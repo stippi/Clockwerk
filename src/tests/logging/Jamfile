@@ -1,0 +1,25 @@
+SubDir TOP src tests logging ;
+
+# source directories
+local sourceDirs =
+	shared/generic
+	shared/generic/logging
+;
+
+local sourceDir ;
+for sourceDir in $(sourceDirs) {
+	SEARCH_SOURCE += [ FDirName $(TOP) src $(sourceDir) ] ;
+}
+
+Application logging_test :
+	logging_test.cpp
+
+	:
+	# libs
+	libshared_logging.a
+	libshared_network.a
+	libshared_xml.a
+	libshared_common.a	# must be last
+
+	be $(STDC++LIB) $(NETWORK_LIBS) $(cryptLib) $(LIBXERCES)
+;

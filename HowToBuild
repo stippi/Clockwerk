@@ -1,0 +1,10 @@
+The build system has only been tested on Haiku. To build all Clockwerk
+components, run the command "jam" followed by "jam fulldistro" at the root
+folder. This will create a subfolder "distro-haiku-with-libs" inside the
+"generated" folder. If you accidentally run Clockwerk-Player, type Cmd-Q to
+exit it. The player does not do anything useful in it's current state, since
+it is missing other software components which used to be part of the Mindwork
+software suit.
+
+Have fun!
+

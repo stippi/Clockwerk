@@ -1,0 +1,8 @@
+SubDir TOP src ;
+
+SubInclude TOP src editor ;
+SubInclude TOP src player ;
+SubInclude TOP src shared ;
+SubInclude TOP src third_party ;
+
+SubInclude TOP src tests logging ;

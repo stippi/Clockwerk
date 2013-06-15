@@ -1,0 +1,178 @@
+Sorry, Germany only. This file contains an overview of the most important classes in the Clockwerk source code. It may not be fully up to date in all places.
+
+
+---Property und PropertyObject------------------------------
+
+Die fundamentale Klasse im Clockwerk-Code ist
+
+ PropertyObject		(siehe src/shared/generic/property)
+
+welches ein Container für verschiedene
+
+ Property
+
+Objekte ist. Damit einher gehen verschiedene Implementierungen für Property für Basistypen wie bool, int32, float, aber auch "höhere" Typen wie ColorProperty, FontProperty und OptionProperty. Hauptmotivation für den Property-Kram war ursprünglich, ein generisches GUI für das Editieren der Properties eines Objektes zu haben. Es gibt dafür ein
+
+PropertryListView	(siehe src/shared/generic/property/view)
+
+welches für jede Property eines gesetzen PropertyObjects ein Editor-View erzeugt. In WonderBrush wurden verschiedene Objekte einfach in PropertyObjects umgewandelt, in Clockwerk basieren die meisten Objekte direkt auf PropertyObject, wobei sich das Umwandeln als eleganter erwiesen hat, weshalb es in Haiku/Icon-O-Matic wieder so gemacht wird.
+
+src/shared/PropertyObjectFactory
+
+ist die zentrale Klasse, um alle anderen bekannten PropertyObjekte mit den richtigen Properties zu "befüllen". Wenn also ein Clip instantiiert wird, läuft es durch PropertyObjectFactory, welches anhand eines Typ-BStrings die richtigen Properties (ggf mit Default und Min-/Maxwerten) an das Objekt hängt. Viele Klassen holen sich daraufhin Pointer auf bestimmte Properties, um schneller darauf zugreifen zu können.
+
+Die "Objekte", die letztlich auf dem Clockwerk-Server eingecheckt werden können, sind die nächste Ableitung von PropertyObject:
+
+ ServerObject
+
+Hauptsächlich geht es dabei um das Vergeben einer eindeutigen ID, auch Server ID genannt. Außerdem werden "Typ", "Version" und "Status" verwaltet.
+
+
+Ein "Clip" ist dann die nächste Stufe und bietet das Interface was letztlich zum Rendern gebraucht wird. Allerdings werden Clips durch einen ClipRenderer gerendert, es gibt für jede Clip "Instanz" (ein ClipPlaylistItem in einer Playlist) einen eigenen ClipRenderer, damit eine gegenseitige Beeinflussing bei mehrmaligem Verwenden eines Clips ausgeschlossen wird. Bei MediaClips (VideoRenderer->BMediaFile) könnte es übrigens Probleme mit dem Limit für offene Files geben.
+
+
+---Playlist------------------------------------------------
+
+Playlist ist einfach eine Implementierung von Clip, weshalb man sie in anderen Playlisten verwenden kann, oder sogar in sich selbst. :-)
+
+Eine Playlist ist eines der ServerObjekte, die andere ServerObjekte "referenzieren", sprich von ihnen abhängen. Es gibt aus diesem Grund Mechanismen, die sicherstellen, dass die Abhängigkeiten nach dem Instanzieren aller ServerObjekte aufgelöst werden. Näheres zur Abhängigkeit zwischen SeverObjekten im "Synchronizer".
+
+
+---Observable und Observer---------------------------------
+
+Viele der Klassen in Clockwerk bedienen sich eines einfachen Listenerermechanismus, wobei die verantwortlichen Basisklassen Observable und Observer genannt werden. (Eigentlich sind es wohl "Listener", da synchron...)
+
+  Observable hat	(siehe src/shared/generic/observer)
+
+  Notify()
+
+welches auf allen registrierten Observern
+
+  ObjectChanged(const Observable*)
+
+aufruft. Es ist dann Sache des Observers, rauszufinden, welches der möglicherweise mehreren Objekte, die es beobachtet, die Notification getriggert hat und welche Attribute des Objektes sich geändert haben. Die Notifications sind nicht vom Setzen der Attribute entkoppelt, weshalb man mögliche Schleifen im Codefluss bedenken muss.
+Einige der komplexeren Klassen haben feinere Notificationmechanismen, wobei häufig auch eine entkoppelte Implementierung (per BMessages) existiert. siehe
+
+ AbstractLOAdapter	(auch in src/shared/generic/observer)
+
+welches einen BMessenger verwendet um Nachrichten zu schicken. Abgeleitete Klassen definieren einfach für jede inline-Notification eine entsprechende BMessage. Ein Beispiel hierfür ist der Notificationmechansimus von "Playlist", siehe PlaylistObserver und PlaylistLOAdapter in src/shared/playlist
+
+
+Vielleicht ist es dann an der Zeit, mal die Verzeichnisse zu erläutern:
+
+---Verzeichnislayout----------------------------------------
+
+ src/connection_test
+ 	Enthält den Java Clockwerk-Server
+
+ src/controller
+ 	Wenige Klassen, die den Controller bilden. Der Controller verlässt sich am meisten auf "src/shared/Synchronizer.cpp", welches auch vom Editor zur Kommunikation mit dem Server benutzt wird. Außerdem steuert er den Player per BMessages.
+ 	
+ src/debug
+ 	Hilfsklassen zum Debuggen, sollten eigentlich nach src/shared/generic verschoben werden
+
+ src/editor
+	Alles was zum Clockwerk Editor gehört:
+
+	../auto_playlist
+		es gibt von Playlist abgeleitete Klassen, die ihre Items auf spezielle Art "layouten", hier sind die Sachen, die nicht auch im Player verwendet werden
+
+	../clip_library
+		enthält nur das ClipListView, was nach ../gui verschoben werden könnte
+	
+	../commands
+		enthält die meisten Command Implementierungen (für Undo/Redo), die der Editor braucht, manche sind aber auch im tools Unterordner oder in shared/generic
+
+	../gui
+		enthält alle möglichen speziellen GUI Klassen vom Editor
+
+	../playback
+		enthält GUI Klassen, die mit dem PlaybackManager zu tun haben
+
+	../playlist
+		enthält GUI Klassen, die mit der Playlist Darstellung und Manipulation zu tun haben
+
+	../rendering
+		enthält alles, was für den *Export* der Playliste als AVI/MOV zu tun hat
+
+	../tools
+		enthält sogenannte TimelineTools (für's TimelineView) und StageTools (für's EditorVideoView) siehe Kapitel über StateView/ViewState/Manipulator
+
+
+ src/overlay_test
+ 	Experimentelles Zeug zum Spielen mit Overlays
+ 
+ src/player
+ 	Alle Klassen vom Player, die dieser nicht mit dem Editor gemeinsam hat. Der Player könnte auch das MediaNode-basierte Playback des Editors nutzen, hat aber sein eigenes Framework aus "SimplePlaybackManager", welches flüssiges Playback auf den Bildschirm synchronisiert. Für den Ton wird eine TimeSource Implementierung und der AudioProducer nebst des Audio Frameworks benutzt (dazu später mehr).
+
+ src/shared
+	Klassen, die von allen Clockwerkprogrammen verwendet werden:
+
+ src/shared/clip_library
+ 	die verschiedenen Clip Implementierungen (Datentypen, die Clockwerk abspielen kann) (ClipLibrary wird nicht mehr verwendet, stattdessen ServerObjectManager), Clips sind ServerObjects, welches wiederum Objekte sind, die man auf den Server hochladen kann. Der Container für alle der Applikation bekannten ServerObjects (also unter anderem auch sämtliche eingecheckten Clips) ist der ServerObjectManager. Es gibt zwei ServerObjectManager Ableitungen, um die ServerObjects und ihre Metadaten (Properties) auf der Festplatte abzuspeichern: PersistentServerObjectManager (welcher alle Objekte in einer XML Datei verwaltet) und den AttributeServerObjectManager (welcher alle Objekte direkt aus dem Verzeichnis (~/clockwerk) liest und Properties als Attribute an die Dateien hängt). Momentan wird generell der letztere (weil robustere) verwendet (über #define gesteuert).
+
+ src/shared/document
+ 	Document ist so eine Art Verwaltungsklasse, von der aus man einfach an mehrere andere Objekte herankommt (Playlist, CommandStack, verschiedene Selections...). Hier befinden sich auch verschiedene Import/Export Klassen, obwohl vielleicht ein besserer Ort angebracht wäre
+
+ src/shared/generic
+	hilfreiche Klassen, die nichts direkt mit "Clockwerk" zu tun haben
+	(Ausnahme: src/shared/generic/property/view/PropertyListView.[h|cpp])
+
+ src/shared/network
+ 	Ingos Kommunkationsframework, enthält Klassen, die mit dem Java-Server kommunizieren, und Utility Klassen, beispielweise um BMessages in XML zu konvertieren. Eine Zentrale Klasse ist ../jobs/JobConnection, die vom Synchronizer benutzt wird, um höhere Befehle an den Server zu schicken (Jobs). Die Jobs machen ihre Arbeit anhand niederer Objekte, den Requests.
+
+ src/shared/painter
+	Das Framework, um etwas in Bitmaps zu malen, mit Painter als zentrale Klasse, sowie Hilfklassen, die von Painter benutzt werden.
+
+ src/shared/playback
+	Ein MediaNode Framework, das hauptsächlich vom Editor und teilweise (für Audio) vom Player benutzt wird. PlaybackManager ist die zentrale Klasse um Audio und Video zueinander zu synchronisieren und das Playback (asynchron) zu steuern. Dazu verwaltet der PlaybackManager intern "playback_states", die zum nächstmöglichen Zeitpunkt das gültige Playback beschreiben, wie den Loopmodus, den Playbackbereich, die Gesamtdauer der Playliste...
+	Die eigentliche Arbeit mit Nodes übernimmt die Ableitung NodeManager, wobei der spezielle Clockwerkcode in PlaylistPlaybackManager steckt. NodeManager ist noch generisch. Verschiedene "Supplier" liefern Video und Audio. Das Audio Framework ist dabei das komlexeste und bildet eine Art Pipeline für Audio-Streams und Filter, die z.B. mixen und resamplen können. Das Audio Framework wird an mehreren Stellen verwendet, auch zum Rendern (AVI/MOV-Export) und im Player. Für den Player wurde dann das PlaybackManagerInterface eingeführt, welches der AudioProducer MediaNode verwendet, damit er nicht direkt abhäbgig vom PlaybackManager ist (der SimplePlaybackManager ist kein PlaybackManager). Auf der Videoseite gibt es den VideoProducer (MediaNode), der einen VideoSupplier hat (PlaylistVideoSupplier wird vom PlaylistPlaybackManager gestellt). Der VideoConsumer (MediaNode) übergibt seine Bitmaps dann einem VCTarget (VideoConsumerTarget), welches im Falle von Clockwerk das EditorVideoView ist.
+
+ src/shared/playlist
+ 	Es gibt PlaylistItems und die Playlist. In Clockwerk werden nur die abgeleiteten ClipPlaylistItems instanziiert. Sie referenzieren einen Clip. (Die "Instanziierung" eines Clips in der Playlist.) Zum Rendern wird eine RenderPlaylist mit RenderPlaylistItems aus der Playlist gewonnen (z.B. im PlaylistVideoSupplier). Der Code müsste in diese Richtung noch sauberer werden, aber im Grunde ist die RenderPlaylist ein Snapshot der Playlist zu einem bestimmten Frame (Abspielposition). Weil die RenderPlaylistItems so kurzlebig sind, hängen sie an ihre original PlaylistItems sogenannte "ClipRenderer", wobei für jede Clipklasse ein eigener Renderer existiert. Die RenderPlaylistItems verwenden dann den Renderer und Painter, um was zu malen. Für Audio ist die ganze Sache etwas besser entkoppelt, da verwaltet der PlaylistAudioSupplier eigenständig sogenannte SoundItems, die analog zu den ClipRenderern sind. Er weiß, welche SoundItems von einem zum nächsten Bild wiederverwendet werden können und hängt die SoundItems nicht in die Hauptplayliststruktur. Die SoundItems benutzen dann den PlaylistItemAudioReader (ein AudioSupplier), den sie von den PlaylistItems bekommen haben.
+
+ src/third_party
+ 	Enthält im Moment nur die AGG Sourcen, die von Painter verwendet werden, es sind teilweise modifizierte Sourcen, also Vorsicht, aber ein Update sollte eh nicht nötig sein.
+
+ src/updater
+	Sehr einfaches Kommandozeilenprogramm, welches sogenannte ClockwerkRevision Objekte auf dem Server einchecken kann. Diese referenzieren dann ClockwerkComponent Objekte, die einfach die zum Clockwerksystem gehörenden Dateien sind. Der Controller kümmert sich dann um die Installation der neuen Revision, siehe:
+
+ src/watchdog
+	Einfaches Kommandozeilenprogramm, welches einen Debugger im Betriebssystem installiert, und so mitbekommt, wenn Programme abstürzen und aus welchem Grund. Es stellt sicher, dass alle Clockwerk Componenten laufen (Controller & Player) und verwaltet Qualitätsinformationen. Wenn die "Qualität der Revision" unter ein bestimmtes Level singt, schaltet der Watchdog auf eine frühere Revision zurück (die liegen in /boot/Clockwerk-[Revisionsnummer]).
+
+----------------------------------------------------------------
+
+Clockwerk "der Editor" verwaltet grundsätzlich diese Daten:
+
+ * ServerObjekte, die beim Programmstart in einen ServerObjectManager geladen werden (das meiste davon sind Clip-Objekte). (siehe EditorApp::ReadyToRun())
+Die "ClipObjectFactory" spielt bei der Instanzierung und dem Laden, Clonen und Speichern von Clips eine entscheidene Rolle. Der Controller verwendet nur die einfachere ServerObjectFactory, die immer nur ServerObjects erzeugt. Diese enthalten genauso alle Metadaten und nur an denen ist der Controller interessiert. Player und Editor verwenden für die selben logischen Objekte ClipObjectFactory, welche dann die Typeninformation aus den Metadaten verwendet, um die richtigen Klassen zu instanziieren. Dabei weiß sie zusätzlich, wie bestimmte Klassen geladen/gespeichert werden müssen.
+
+ * Playlisten sind auch Clips und enthalten ClipPlaylistItems, die andere Clips referenzieren. Playlisten werden mittels der XMLImporter und XMLExporter in src/shared/document geladen.
+
+ * eine Playlist aus dem Clip-Sortiment im ServerObjectManager ist die "aktuelle" und wird an die einzige Document-Instanz gehängt, von wo aus alle anderen darauf zugreifen.
+
+ * das Hauptfenster (MainWindow) verbindet mehrere Objekte miteinander, vor allem das GUI. Das MainWindow macht die verschiedensten Objektinstanzen in Init() miteinander bekannt, so dass diese sich als einfache Observer oder komplexere Observer bei anderen Objekten registrieren können.
+
+ * MainWindow hat auch den PlaybackManager->NodeManager->PlaylistPlaybackManager, welcher den PlaylistVideoSupplier stellt. Dieser produziert für jedes Bild eine RenderPlaylist zum Rendern.
+
+ * das Document stellt viele Objekte, die andere Objekte benutzen um sich gegenseitig zu synchronisieren (beispielsweise das CurrentFrame, oder die DisplayRange und PlaybackRange)
+
+ * Im Editor gibt es dann noch den CommandStack und Selections für Clips, Playlist und Stage (EditorVideoView). Das PropertyListView wird vom MainWindow immer auf das zuletzt gewählte "Selectable" gesetzt, damit man Properties editieren kann. Ansonsten ist alles mittels Commands implementiert und wird über die Listener Mechanismen aktuell gehalten.
+
+ 
+---StateView/ViewState/Manipulator--Tools---------------------------
+
+Es gibt ein Framework in src/shared/generic/gui/state_view, welches im TimelineView und im EditorVideoView verwendet wird. Ein "StateView" delegiert den ganzen MouseDown/Up/Moved und KeyDown/Up Kram etc an einen gesetzten "ViewState", um die Implementierung zur Laufzeit austauschen zu können. Eine ViewState Implementierung ist der MultipleManipulatorState, welcher eine Anzahl von Manipulatoren verwaltet und einen bestimmten Manipulator auswählt, um die Implementierung wiederum weiterzuleiten (Manipulatoren sind einfach mehrere Objekte auf der Viewfläche, die irgendwas über den Maus-Input steuern). Sowohl das TimelineView als auch das EditorVideoView verwenden diesen MultipleManipulatorState und Manipulatoren, die sie von einem gesetzten Tool zurückbekommen (TimelineView -> TimelineTool, EditorVideoView -> StageTool, siehe MainWindow::AddTool()). Beim TimelineView kriegt zum Beispiel jedes PlaylistItem einen Manipulator vom aktuellen Tool generiert. Die Manipulatoren für die PlaylistItems sind nochmal "aufgesplittet", es gibt eine visuelle Aufteilung in "Oben" und "Unten". Der obere Teil eines visuellen PlaylistItems wird von einem TimelineTool kontrolliert, der untere von einem PropertyManipulator. Die Kette der Ableitung ist
+
+Manipulator->PlaylistItemManipulator->SplitManipulator (hat PropertyManipulator und ein neues (paralleles) Manipulator Interface für Tools)->Tool spezifische Klasse
+
+Der PropertyManipulator ist momentan fest auf die "Opacity" Property eingestellt, was bei Sound auch dem Volumen entspricht. Der Manipulator steuert den "PropertyAnimator", der standardmäßig an der Opacity Property hängt. Dieser beinhaltet "KeyFrames", welche jeweils einen Clone der Original Property enthalten, mit verändertem Wert zu einem bestimmten Bild. Wenn man im PropertyListView eine Property auswählt, werden die KeyFrames zusätzlich im TimeView angezeigt, wo man sie verschieben und löschen (rausziehen) kann.
+
+Die "Animation" der Properties ist ein bisschen komisch. Eigentlich passiert es beim Clonen der Playliste als RenderPlayliste (Snapshot zu bestimmten Frame). Allerdings werden alle Properties der in der Playliste enthaltenen Items zusätzlich vom MainWindow bei Empfang der Abspielpositionsnotification animiert, damit sich zum Beispiel im PropertyListView die Werte aktualisieren. Könnte man auch geschickter machen.
+
+
+---Locking----------------------------------------------------------
+
+Das Locking ist vielleicht nicht so ausgereift. Inzwischen denke ich, ein einziger ReadWriterLocker für alles wäre nicht so eine schlechte Idee. Aber stattdessen gibt es einen ReadWriteLocker für das Document und einen für den ServerObjectManager. So schlecht ist das vielleicht auch nicht, weil theoretisch eine einzige ServerObjectManager Instanz von mehreren Documents (jeweils mit eigenem Fenster) verwendet werden könnte. Problematisch sind die synchronen Notifications, die GUI-Klassen müssen dann immer Lock/UnlockLooper() in ObjectChanged() benutzen, weil sie ja von einem anderen Thread als dem Fensterthread kommen könnten. Wenn das Fenster den Document Lock bekommen möchte und blockiert, und dann Notifications von einem anderen Thread kommen, gibt es einen Deadlock. Deshalb sieht man in EditorApp, dass das Fenster immer erstmal gelockt wird, damit sichergestellt wird, dass LockLooper() später in den Notifications nicht blockiert. Ein weiterer Nachteil ist, dass zuviele Notifications, die Invalidate() etc aufrufen während das Fenster die ganze Zeit gelockt ist, die MessageQueue oder irgendetwas anderes zum Überlaufen bringen können (zumindest hatte ich so ein Problem mal mit Icon-O-Matic beim Import von größeren Icons, bei Clockwerk ist sowas noch nicht vorgekommen, weil da das Laden anders funktioniert). Generell wären aus diesen Gründen asynchrone Notifications besser, aber für's erste funktioniert es auch so wie es ist. Im StateView kann man übrigens einen ReadWriteLocker setzen, der dann immer vor dem Delegieren von Hookfunktionen gelockt wird. Auch MainWindow::MessageReceived() lockt erstmal pauschal. Es kann aber nicht ausgeschlossen werden, dass das Locking nicht alle Eventualitäten abdeckt, weil immer nur mit einem einzigen MainWindow getestet wurde. Vielleicht könnten auch schlimme Dinge passieren, wenn man während des Synchronisationsvorgangs mit dem Server (JobConnection Thread arbeitet mit dem ServerObjectManager) noch groß was mit dem MainWindow macht. Allerdings arbeitet das Playback ja auch in seinen eigenen Threads (Readlocked das Document für die Dauer des Clonens der Playliste als RenderPlaylist) und soweit funktionierte das immer super.
+
+

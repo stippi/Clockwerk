@@ -1,0 +1,42 @@
+/*
+ * Copyright 2007-2008, Ingo Weinhold <ingo_weinhold@gmx.de>
+ * All rights reserved. Distributed under the terms of the GNU GPL v2.
+ */
+
+#ifndef REQUEST_MESSAGE_CODES_H
+#define REQUEST_MESSAGE_CODES_H
+
+enum {
+	REQUEST_CONNECTION_BROKEN		= 'rqCB',	// dummy request, issued when
+												// the connection broke
+	REQUEST_ERROR_REPLY				= 'rqER',
+	REQUEST_UPLOAD					= 'rqUP',
+	REQUEST_UPLOAD_OK_REPLY			= 'rpUP',
+	REQUEST_DOWNLOAD				= 'rqDN',
+	REQUEST_REMOVE					= 'rqRM',
+	REQUEST_GET_CHANGE_SET			= 'rqCS',
+	REQUEST_GET_CHANGE_SET_REPLY	= 'rgCS',
+	REQUEST_GET_REVISION			= 'rqGR',
+	REQUEST_GET_REVISION_REPLY		= 'rpGR',
+	REQUEST_GET_UNREVISIONED_CHANGE_SETS = 'rqUC',
+	REQUEST_GET_UNREVISIONED_CHANGE_SETS_REPLY = 'rgUC',
+	REQUEST_LIST_FILES				= 'rqLF',
+	REQUEST_LIST_FILES_REPLY		= 'rpLF',
+	REQUEST_LIST_SCOPES				= 'rqLS',
+	REQUEST_LIST_SCOPES_REPLY		= 'rpLS',
+
+	REQUEST_START_TRANSACTION		= 'rqST',
+	REQUEST_FINISH_TRANSACTION		= 'rqFT',
+	REQUEST_FINISH_TRANSACTION_REPLY = 'rgFT',
+	REQUEST_CANCEL_TRANSACTION		= 'rqCT',
+
+	REQUEST_SEND_DATA				= 'rqSD',	// sub-request of up/download
+
+	REQUEST_CLOCKWERK_REVISION		= 'rqCR',	// not really a request...
+
+	REQUEST_CLEAR_STORES			= 'rqSC',
+	REQUEST_SYNC_WITH_SUPERIOR		= 'rqSS',
+};
+
+#endif	// REQUEST_MESSAGE_CODES_H
+

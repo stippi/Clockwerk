@@ -1,0 +1,10 @@
+License
+
+Mindwork has chosen to publish the Clockwerk framework under the GNU GPL v2 license.
+
+However, Clockwerk contains a lot of imported code, especially from the YellowBites projects WonderBrush and eXposer. This code can be found in the src/shared domain and is licensed under the terms of the MIT license.
+
+The code that has been developed for Mindwork is licensed as GNU GPL v2.
+
+If you are building a work based on the Clockwerk source code as a whole, you are bound by the terms of the GNU GPL v2. However, if you extract only those source files released under MIT license, you are not bound by the GPL. Each source file should state the respective license at the top of the file.
+

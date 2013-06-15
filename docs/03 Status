@@ -1,0 +1,28 @@
+NOTE: Outdated, because components beside Clockwerk itself have been stripped from the Open Source release.
+
+Overview
+
+The MediaStation framework is a suit of interoperating software with the purpose of providing editing and playback stations for kiosk multimedia content. These stations operate against a common object repository provided by one or multiple networked servers. The repository is similar to other Content Management Systems or for example software revision control.
+
+At the framework's core is the Clockwerk application which is a powerful tool to compose video, audio, bitmaps, text and other media content. The current focus is to operate one or more kind of network TV channels, where content is live composited from a repository of media objects. Objects automatically update during runtime over the network and changes are incorporated into the playback. But Clockwerk is flexible enough to be a stand alone, general purpose autio/video editing and compositing tool. The focus on kiosk content means it has features not needed by the "average" video editor, but is lacking in other areas, such as filters and effects, which are not needed for live compositing.
+
+Most of the MediaStation source code is shared bewteen the different components. For example, the Clockwerk and the MediaPlayer share the same playback code, while Clockwerk and the Controller share the same networking code.
+
+
+Clockwerk
+
+
+
+
+Player
+
+
+
+
+Controller
+
+
+
+Watchdog
+
+

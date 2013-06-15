@@ -1,0 +1,313 @@
+SubDir TOP src shared ;
+
+# source directories (relative to src/)
+local sourceDirs =
+	$(DOT)
+	shared/clip_library
+	shared/clip_library/view
+	shared/document
+	shared/document/export
+	shared/document/import
+	shared/generic
+	shared/generic/commands
+	shared/generic/event_queue
+	shared/generic/logging
+	shared/generic/observer
+	shared/generic/property
+	shared/generic/property/specific_properties
+	shared/generic/property/view
+	shared/generic/property/view/specific_properties
+	shared/generic/gui
+	shared/generic/gui/scrollview
+	shared/generic/gui/stateview
+	shared/generic/xml
+	shared/navigation
+	shared/painter
+	shared/playback
+	shared/playback/audio
+	shared/playback/video
+	shared/playback/view
+	shared/playlist
+	shared/playlist/rendering
+	shared/playlist/view
+	shared/schedule
+	shared/tools
+	shared/tools/cut
+	shared/tools/delete
+	shared/tools/pick
+
+	third_party/agg/font_freetype
+;
+
+local sourceDir ;
+for sourceDir in $(sourceDirs) {
+	SEARCH_SOURCE += [ FDirName $(TOP) src $(sourceDir) ] ;
+}
+
+
+# system include directories (relative to $(TOP))
+local sysIncludeDirs =
+	include/layout
+	include/freetype
+	include/xerces
+	include/xerces/dom
+	include/xerces/framework
+	include/xerces/sax
+	include/xerces/util
+	src/third_party/agg/include
+	src/third_party/agg/font_freetype
+;
+
+local sysIncludeDir ;
+for sysIncludeDir in $(sysIncludeDirs) {
+	SubDirSysHdrs [ FDirName $(TOP) $(sysIncludeDir) ] ;
+}
+
+
+# local include paths
+SubDirHdrs [ FDirName $(TOP) src shared icons ] ;
+SubDirHdrs [ FDirName $(TOP) src shared network ] ;
+
+
+# SVN revision
+local svnRevisionFile = [ FGristFiles svn_revision ] ;
+MakeLocate $(svnRevisionFile) : $(LOCATE_TARGET) ;
+CreateSVNRevisionFile $(svnRevisionFile) ;
+
+
+StaticLibrary libshared_common.a :
+	common.cpp
+	common_constants.cpp
+	common_logging.cpp
+	ComponentQualityInfo.cpp
+	HashString.cpp
+	JavaProperties.cpp
+	PathMonitor.cpp
+	Referencable.cpp
+	Referenceable.cpp
+	StatusOutput.cpp
+	StringTokenizer.cpp
+	SHA256.cpp
+	svn_revision.cpp
+#	trace.c
+;
+
+#if $(PROFILE) {
+#	SubDirCcFlags $(FDefines) -finstrument-functions ;
+#	SubDirC++Flags $(FDefines) -finstrument-functions ;
+#}
+
+
+# Work around a typeinfo problem with gcc 2.95.3 and old be libs
+# (cf. src/player/Jamfile for more info).
+if $(IS_GCC_4_PLATFORM) != 1 {
+	ObjectC++Flags AudioProducer.cpp VideoConsumer.cpp VideoProducer.cpp
+		: -fmultiple-symbol-spaces ;
+}
+
+
+StaticLibrary libshared_player_editor.a :
+	#shared
+	AttributeServerObjectManager.cpp
+	ClipObjectFactory.cpp
+	ClockwerkApp.cpp
+	DisplaySettings.cpp
+	PropertyObjectFactory.cpp
+	ServerObject.cpp
+	ServerObjectFactory.cpp
+	ServerObjectManager.cpp
+
+	# clip_library
+	BitmapClip.cpp
+	Clip.cpp
+	ClockClip.cpp
+	ColorClip.cpp
+	ExecuteClip.cpp
+	FileBasedClip.cpp
+	MediaClip.cpp
+	ScrollingTextClip.cpp
+	TableClip.cpp
+	TextClip.cpp
+	TimerClip.cpp
+	WeatherClip.cpp
+
+	# document
+	Document.cpp
+	# document/export
+	Exporter.cpp
+#	XMLExporter.cpp
+#	xml_export.cpp
+	# document/import
+	Importer.cpp
+#	XMLImporter.cpp
+#	xml_import.cpp
+
+	# generic/commands
+	Command.cpp
+	CommandStack.cpp
+	CompoundCommand.cpp
+
+	# generic/event_queue
+	Event.cpp
+	EventQueue.cpp
+	MessageEvent.cpp
+
+	# generic/observer
+	AbstractLOAdapter.cpp
+	Observable.cpp
+	Observer.cpp
+
+	# generic/property
+	CommonPropertyIDs.cpp
+	Property.cpp
+	PropertyAnimator.cpp
+	PropertyObject.cpp
+	KeyFrame.cpp
+
+	# generic/property/specific_properties
+	ColorProperty.cpp
+	DurationProperty.cpp
+	FontProperty.cpp
+	Int64Property.cpp
+	OptionProperty.cpp
+	TimeProperty.cpp
+	WeekDaysProperty.cpp
+
+	# generic
+	AttributeMessage.cpp
+	support.cpp
+	support_date.cpp
+	support_ui.cpp
+	RWLocker.cpp
+	Selectable.cpp
+	Selection.cpp
+	regex.cpp
+	WeatherStatus.cpp
+
+	# navigation
+	NavigationInfo.cpp
+	PlaybackNavigator.cpp
+
+	# painter
+	AdvancedTransform.cpp
+	AffineTransform.cpp
+	BBitmapBuffer.cpp
+	Font.cpp
+	FontCache.cpp
+	FontCacheEntry.cpp
+	FontEngine.cpp
+	MemoryBuffer.cpp
+	Painter.cpp
+	RenderingBuffer.cpp
+	ShapeConverter.cpp
+	TextBlockRenderer.cpp
+	TextRenderer.cpp
+
+	agg_font_freetype.cpp	# third_party/agg/font_freetype
+	FontManager.cpp			# painter
+
+	# playback
+	CurrentFrame.cpp
+	MediaRenderingBuffer.cpp
+	NodeManager.cpp
+	PlaybackListener.cpp
+	PlaybackLOAdapter.cpp
+	PlaybackManager.cpp
+	PlaybackManagerInterface.cpp
+	PlaylistPlaybackManager.cpp
+	VideoViewSelection.cpp
+
+	# playback/audio
+	AudioAdapter.cpp
+	AudioConverter.cpp
+	AudioMixer.cpp
+	AudioProducer.cpp
+	AudioReader.cpp
+	AudioResampler.cpp
+	AudioSupplier.cpp
+	AudioTrackReader.cpp
+#	ToneProducerReader.cpp
+
+	PlaylistAudioReader.cpp
+	PlaylistAudioSupplier.cpp
+
+	# playback/video
+	PlaylistVideoSupplier.cpp
+	VCTarget.cpp
+	VideoConsumer.cpp
+	VideoProducer.cpp
+	VideoSupplier.cpp
+
+	# playback/view
+	VideoView.cpp
+
+	# playlist
+	ClipPlaylistItem.cpp
+	CollectablePlaylist.cpp
+	CollectingPlaylist.cpp
+	Playlist.cpp
+	PlaylistItem.cpp
+	PlaylistItemAudioReader.cpp
+	PlaylistLOAdapter.cpp
+	PlaylistObserver.cpp
+	SequenceContainerPlaylist.cpp
+	SlideShowPlaylist.cpp
+	StretchingPlaylist.cpp
+	TrackProperties.cpp
+
+	# playlist/rendering
+	BitmapRenderer.cpp
+	ClipRenderer.cpp
+	ClipRendererCache.cpp
+	ClockRenderer.cpp
+	ColorRenderer.cpp
+	ExecuteRenderer.cpp
+	PlaylistClipRenderer.cpp
+	RenderPlaylist.cpp
+	RenderPlaylistItem.cpp
+	ScrollingTextRenderer.cpp
+	StaticTextRenderer.cpp
+	TableRenderer.cpp
+	TimerRenderer.cpp
+	VideoRenderer.cpp
+	WeatherRenderer.cpp
+
+	# playlist/view
+	DisplayRange.cpp
+	LoopMode.cpp
+
+	# schedule
+	Schedule.cpp
+	ScheduleItem.cpp
+	ScheduleObserver.cpp
+
+	# profiling
+#	trace.c
+;
+
+
+StaticLibrary libshared_xml.a :
+	# generic
+	AttributeAccessor.cpp
+
+	# generic/xml
+	BinDataIOInputStream.cpp
+	DataIOInputSource.cpp
+	DOMNodeWriter.cpp
+	IDManager.cpp
+	ParameterManager.cpp
+	XercesDOMHelper.cpp
+	XercesSupport.cpp
+	XMLHelper.cpp
+	XMLStorable.cpp
+	XMLSupport.cpp
+#	trace.c
+;
+
+MakeLocate libshared_common.a : [ FDirName $(OBJECTS_DIR) lib ] ;
+MakeLocate libshared_player_editor.a : [ FDirName $(OBJECTS_DIR) lib ] ;
+MakeLocate libshared_xml.a : [ FDirName $(OBJECTS_DIR) lib ] ;
+
+
+SubInclude TOP src shared network ;
+SubInclude TOP src shared generic ;

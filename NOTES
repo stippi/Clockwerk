@@ -1,0 +1,32 @@
+- Playback:
+	"RenderPlaylist" representiert eine Kopie der Playlist für das
+	Rendern. Es wird für jedes PlaylistItem ein RenderPlaylistItem
+	angelegt, welches eine Referenz auf das Originalitem hat. Hat das
+	Originalitem noch keinen "Renderer", so wird einer generiert und
+	in einem Pool von Renderern verwaltet. In einem Frame nicht verwendete
+	Renderer altern und werden nach einer Zeit wieder gelöscht.
+
+- Templates in Playlisten:
+	Rechtsklick auf PlaylistItem -> "Make Template" -> setzt Flag auf
+	ClipPlaylistItem und fügt Property ein, damit man das Template benennen
+	kann?
+
+------------------------
+
+Implementierung eines neuen Clip Typs:
+
+- src/shared/clip_library/NeuerClip.cpp
+- src/shared/playlist/rendering/NeuerRenderer.cpp
+
+- src/shared/playlist/rendering/RendererPlaylistItem.cpp
+	-> NeuerRenderer instantiieren
+- src/shared/ClipObjectFactory.cpp
+	-> NeuerClip instanziieren & clonen (gegebenenfalls Datei laden/speichern)
+- src/shared/PropertyObjectFactory.cpp
+	-> NeuerClip Properties anhängen
+- src/editor/MainWindow.cpp
+	-> _CreateMenuBar() NeuerClip Eintrag in Clip Menü
+- src/editor/gui/ClipGroup.cpp
+	-> ItemSorter implementieren (Ausblenden anderer Clips im ClipListView)
+- src/server/data/metadata-defs.xml -> Attribute definieren
+
