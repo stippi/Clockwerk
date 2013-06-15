@@ -324,6 +324,7 @@ Playlist::Unarchive(const BMessage* from)
 		BMessage itemArchive;
 		for (int32 i = 0; items.FindMessage("item", i,
 				&itemArchive) == B_OK; i++) {
+itemArchive.PrintToStream();
 			BArchivable* archivable = instantiate_object(&itemArchive);
 			PlaylistItem* item = dynamic_cast<PlaylistItem*>(archivable);
 			if (item == NULL) {

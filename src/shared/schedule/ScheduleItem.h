@@ -35,6 +35,7 @@ class ScheduleItem : public PropertyObject,
 	virtual	void				SelectedChanged();
 
 	// BArchivable interface
+	__attribute__ ((visibility ("default")))
 	static	BArchivable*		Instantiate(BMessage* archive);
 
 	virtual	status_t			Archive(BMessage* into,
