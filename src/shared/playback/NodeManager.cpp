@@ -592,16 +592,20 @@ ldebug("NodeManager::_StopNodes()\n");
 		return;
 	} else if (fMediaRoster->Lock()) {
 		// begin mucking with the media roster
-		if (fVideoProducer && fVideoConsumer && fAudioProducer) {
-ldebug("  stopping video producer...\n");
+		if (fVideoProducer != NULL) {
+			ldebug("  stopping video producer...\n");
 			fMediaRoster->StopNode(fVideoConnection.producer, 0, true);
-ldebug("  stopping audio producer...\n");
-			fAudioProducer->SetRunning(false);
-			fMediaRoster->StopNode(fAudioConnection.producer, 0, true);		// synchronous stop
-ldebug("  stopping video consumer...\n");
-			fMediaRoster->StopNode(fVideoConnection.consumer, 0, true);
-ldebug("  all nodes stopped\n");
 		}
+		if (fAudioProducer != NULL) {
+			ldebug("  stopping audio producer...\n");
+			fMediaRoster->StopNode(fAudioConnection.producer, 0, true);
+				// synchronous stop
+		}
+		if (fVideoConsumer != NULL) {
+			ldebug("  stopping video consumer...\n");
+			fMediaRoster->StopNode(fVideoConnection.consumer, 0, true);
+		}
+		ldebug("  all nodes stopped\n");
 		// done mucking with the media roster
 		fMediaRoster->Unlock();
 	}
