@@ -442,17 +442,17 @@ if $(IS_GCC_4_PLATFORM) {
 }
 
 
-rule CreateSVNRevisionFile file
-{
-	# CreateSVNRevisionFile <file>
-
-	local svnEntries = <svn>entries ;
-	SEARCH on $(svnEntries) = [ FDirName $(HAIKU_TOP) .svn ] ;
-	Depends $(file) : $(svnEntries) ;
-}
-
-actions CreateSVNRevisionFile
-{
-	(LANG=C svn info $(TOP) 2> /dev/null || echo Revision: 0) |
-		grep Revision | awk '{printf $2}' > $(1)
-}
+#rule CreateSVNRevisionFile file
+#{
+#	# CreateSVNRevisionFile <file>
+#
+#	local svnEntries = <svn>entries ;
+#	SEARCH on $(svnEntries) = [ FDirName $(HAIKU_TOP) .svn ] ;
+#	Depends $(file) : $(svnEntries) ;
+#}
+#
+#actions CreateSVNRevisionFile
+#{
+#	(LANG=C svn info $(TOP) 2> /dev/null || echo Revision: 0) |
+#		grep Revision | awk '{printf $2}' > $(1)
+#}
