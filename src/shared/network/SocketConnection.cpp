@@ -16,7 +16,6 @@
 #include "Compatibility.h"
 #include "Debug.h"
 #include "SocketConnection.h"
-#include "svn_revision.h"
 #include "NetAddress.h"
 #include "NetFSDefs.h"
 
@@ -111,7 +110,8 @@ PRINT(("  receiving server reply (%lu bytes)...\n", connectReplySize));
 	// send a ackknowledge reply
 	if (fProtocolVersion >= 2) {
 		ConnectAckReply ackReply;
-		ackReply.clientVersion = B_HOST_TO_BENDIAN_INT32(kSVNRevision);
+		// Using "0" here to patch things up, was "SVN revision number"
+		ackReply.clientVersion = B_HOST_TO_BENDIAN_INT32(0);
 		error = channel->Send(&ackReply, sizeof(ackReply));
 		if (error != B_OK)
 			return error;

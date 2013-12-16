@@ -13,7 +13,6 @@
 
 #include "Logger.h"
 #include "Logging.h"
-#include "svn_revision.h"
 
 
 // init_logging
@@ -32,7 +31,7 @@ init_logging(const char* appName, const char* logSettingsPath,
 	Logger sLog("init_logging");
 
 	// logging initialized
-	LOG_FATAL("%s starting, revision %ld...\n", appName, kSVNRevision);
+	LOG_FATAL("%s starting...\n", appName);
 	LOG_INFO("using log.properties: %s\n", logSettingsPath);
 
 	if (!watchLogSettings)
