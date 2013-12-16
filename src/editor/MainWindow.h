@@ -142,9 +142,6 @@ class MainWindow : public BWindow,
 	BMenuItem*					fEditClipMI;
 	BMenuItem*					fRemoveClipsMI;
 	BMenuItem*					fUpdateClipDataMI;
-#ifndef CLOCKWERK_STAND_ALONE
-	BMenu*						fWindowMenu;
-#endif
 	BMenu*						fPropertyMenu;
 
 	ClipListView*				fClipListView;

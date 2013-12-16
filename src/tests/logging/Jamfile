@@ -17,9 +17,7 @@ Application logging_test :
 	:
 	# libs
 	libshared_logging.a
-	libshared_network.a
-	libshared_xml.a
 	libshared_common.a	# must be last
 
-	be $(STDC++LIB) $(NETWORK_LIBS) $(cryptLib) $(LIBXERCES)
+	be $(STDC++LIB) $(NETWORK_LIBS) $(cryptLib)
 ;

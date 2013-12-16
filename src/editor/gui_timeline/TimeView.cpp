@@ -130,9 +130,7 @@ TimeView::Draw(BRect updateRect)
 	rgb_color lightShadow = tint_color(background, B_DARKEN_1_TINT);
 	rgb_color shadow = tint_color(background, B_DARKEN_2_TINT);
 	rgb_color text = tint_color(shadow, B_DARKEN_3_TINT);
-	rgb_color light = tint_color(background, B_LIGHTEN_MAX_TINT);
 	background = tint_color(background, B_LIGHTEN_1_TINT);
-	rgb_color softLight = tint_color(background, B_LIGHTEN_2_TINT);
 	rgb_color darkenMax = tint_color(shadow, B_DARKEN_MAX_TINT);
 	rgb_color tickShadow = (rgb_color){ 0, 0, 0, 60 };
 	rgb_color tickLight = (rgb_color){ 255, 255, 255, 200 };

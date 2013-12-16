@@ -17,8 +17,6 @@
 #include <NodeInfo.h>
 #include <Path.h>
 
-#include <util/XMLException.hpp>
-
 #include "common.h"
 
 #include "ClockClip.h"
@@ -26,11 +24,8 @@
 #include "CollectingPlaylist.h"
 #include "ColorClip.h"
 #include "CommonPropertyIDs.h"
-#include "DisplaySettings.h"
-#include "ExecuteClip.h"
 #include "FileBasedClip.h"
 #include "Playlist.h"
-#include "Schedule.h"
 #include "ScrollingTextClip.h"
 #include "SequenceContainerPlaylist.h"
 #include "ServerObjectManager.h"
@@ -79,8 +74,6 @@ ClipObjectFactory::Instantiate(BString& type, const BString& id,
 		object = new (nothrow) ClockClip("<new clock>");
 	} else if (type == "ColorClip") {
 		object = new (nothrow) ColorClip("<new color>");
-	} else if (type == "ExecuteClip") {
-		object = new (nothrow) ExecuteClip("<new execute>");
 	} else if (type == "ScrollingTextClip") {
 		object = new (nothrow) ScrollingTextClip("<new ticker>");
 	} else if (type == "TextClip") {
@@ -204,30 +197,6 @@ ClipObjectFactory::Instantiate(BString& type, const BString& id,
 				object = playlist;
 			}
 		}
-	} else if (type == "Schedule") {
-		Schedule* schedule = new (nothrow) Schedule();
-
-		entry_ref ref;
-		status_t error = library->GetRef(id, ref);
-		if (error == B_OK) {
-			// an existing Schedule object
-
-//			BFile file(&ref, B_READ_ONLY);
-//			XMLImporter importer;
-//			try {
-//				importer.Restore(schedule, &file);
-//				object = schedule;
-//			} catch (...) {
-//				delete schedule;
-//				printf("ClipObjectFactory::Instantiate() - "
-//					   "exception while loading schedule\n");
-//			}
-		} else {
-			// a new Schedule object
-			object = schedule;
-		}
-	} else if (type == "DisplaySettings") {
-		object = new (nothrow) DisplaySettings();
 	}
 
 	if (!object) {
@@ -269,8 +238,6 @@ ClipObjectFactory::InstantiateClone(const ServerObject* other,
 					= dynamic_cast<const FileBasedClip*>(other);
 	const Playlist* playlist
 					= dynamic_cast<const Playlist*>(other);
-	const Schedule* schedule
-					= dynamic_cast<const Schedule*>(other);
 	const SequenceContainerPlaylist* sequencePL
 					= dynamic_cast<const SequenceContainerPlaylist*>(other);
 	const SlideShowPlaylist* slideShowPL
@@ -285,8 +252,6 @@ ClipObjectFactory::InstantiateClone(const ServerObject* other,
 					= dynamic_cast<const CollectingPlaylist*>(other);
 	const ColorClip* color
 					= dynamic_cast<const ColorClip*>(other);
-	const ExecuteClip* execute
-					= dynamic_cast<const ExecuteClip*>(other);
 	const ScrollingTextClip* ticker
 					= dynamic_cast<const ScrollingTextClip*>(other);
 	const TextClip* text
@@ -298,7 +263,7 @@ ClipObjectFactory::InstantiateClone(const ServerObject* other,
 	const WeatherClip* weather
 					= dynamic_cast<const WeatherClip*>(other);
 
-	if (fileClip || playlist || schedule || table) {
+	if (fileClip || playlist || table) {
 		// find file by using server id as name
 		// copy the file
 		entry_ref srcRef;
@@ -335,8 +300,6 @@ ClipObjectFactory::InstantiateClone(const ServerObject* other,
 			object = new StretchingPlaylist(*stretchingPL);
 		else if (playlist)
 			object = new Playlist(*playlist, true);
-		else if (schedule)
-			object = new Schedule(*schedule, true);
 		else if (table)
 			object = new TableClip(*table);
 		else
@@ -346,8 +309,6 @@ ClipObjectFactory::InstantiateClone(const ServerObject* other,
 		object = new (nothrow) ClockClip(*clock);
 	} else if (color) {
 		object = new (nothrow) ColorClip(*color);
-	} else if (execute) {
-		object = new (nothrow) ExecuteClip(*execute);
 	} else if (ticker) {
 		object = new (nothrow) ScrollingTextClip(*ticker);
 	} else if (text) {

@@ -47,8 +47,7 @@ class ClipPlaylistItem : public PlaylistItem,
 	virtual	BString				Name() const;
 
 	virtual	bool				MouseDown(BPoint where, uint32 buttons,
-									BRect canvasBounds, double frame,
-									PlaybackNavigator* navigator);
+									BRect canvasBounds, double frame);
 
 	virtual	uint64				MaxDuration() const;
 

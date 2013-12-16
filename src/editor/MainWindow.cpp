@@ -41,7 +41,6 @@
 #include "DeleteCommand.h"
 #include "Document.h"
 #include "EditorApp.h"
-#include "EditorPlaybackNavigator.h"
 #include "EditorVideoView.h"
 #include "FileBasedClip.h"
 #include "Group.h"
@@ -153,8 +152,6 @@ MainWindow::~MainWindow()
 		delete (StageTool*)fStageTools.ItemAtFast(i);
 
 	delete fUpdateDataPanel;
-
-	PlaybackNavigator::DeleteDefault();
 }
 
 // #pragma mark -
@@ -1037,9 +1034,6 @@ fDocument->PlaybackRange()->SetLastFrame(100);
 	// init tools
 	_InitTimelineTools();
 	_InitStageTools();
-
-	// init playback navigation
-	PlaybackNavigator::SetDefault(new EditorPlaybackNavigator(fApp));
 
 	// init additional shortcuts
 	AddShortcut('Y', 0, new BMessage(MSG_UNDO));

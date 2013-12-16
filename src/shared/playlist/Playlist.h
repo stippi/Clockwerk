@@ -13,7 +13,6 @@
 #include "Clip.h"
 
 class DurationProperty;
-class PlaybackNavigator;
 class PlaylistItem;
 class PlaylistObserver;
 class TrackProperties;
@@ -57,8 +56,7 @@ public:
 
 	// TODO: move to Clip or maybe ClipPlaylistItem only?
 	virtual	bool				MouseDown(BPoint where, uint32 buttons,
-									BRect canvasBounds, double currentFrame,
-									PlaybackNavigator* navigator);
+									BRect canvasBounds, double currentFrame);
 
 
 	// Playlist

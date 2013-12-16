@@ -13,7 +13,6 @@
 
 #include "ClockwerkApp.h"
 #include "EditorSettings.h"
-#include "JobConnection.h"
 
 class BFilePanel;
 class ClientSettingsWindow;
@@ -39,27 +38,11 @@ enum {
 	MSG_PREPARE_FOR_SYNCHRONIZATION	= 'nwps',
 	MSG_READY_FOR_SYNCHRONIZATION	= 'nwrs',
 
-#ifndef CLOCKWERK_STAND_ALONE
-	MSG_SHOW_SCHEDULES				= 'shsc',
-	MSG_SHOW_CLIENT_SETTINGS		= 'shcs',
-	MSG_SHOW_USERS					= 'shus',
-	MSG_SHOW_DISPLAY_SETTINGS		= 'shds',
-
-	MSG_NETWORK_SHOW_STATUS			= 'nwss',
-	MSG_NETWORK_HIDE_STATUS			= 'nwhs',
-
-	MSG_NETWORK_RESET_ALL_OBJECTS	= 'nwro',
-#endif
-
 	MSG_CREATE_OBJECT				= 'crto',
 	MSG_RESOLVE_DEPENDENCIES		= 'rslv'
 };
 
-class EditorApp : public ClockwerkApp
-#ifndef CLOCKWERK_STAND_ALONE
-				, public JobConnectionListener
-#endif
-				{
+class EditorApp : public ClockwerkApp {
  public:
 								EditorApp();
 	virtual						~EditorApp();
@@ -71,25 +54,7 @@ class EditorApp : public ClockwerkApp
 	virtual	void				RefsReceived(BMessage* message);
 	virtual	void				Pulse();
 
-#ifndef CLOCKWERK_STAND_ALONE
-	// JobConnectionListener interface
-	virtual	void				Connecting(JobConnection* connection);
-	virtual	void				Connected(JobConnection* connection);
-	virtual	void				Disconnected(JobConnection* connection);
-	virtual	void				Deleted(JobConnection* connection);
-#endif // CLOCKWERK_STAND_ALONE
-
  private:
-#ifndef CLOCKWERK_STAND_ALONE
-			status_t			_Synchronize();
-			status_t			_Synchronized(bool complete = true,
-									bool canceled = false);
-
-			status_t			_Upload();
-			status_t			_Uploaded(bool complete = true);
-
-			void				CleanupObsoleteObjects();
-#endif // CLOCKWERK_STAND_ALONE
 
 			void				_HandleScopes(BMessage* scopes);
 
@@ -139,39 +104,17 @@ class EditorApp : public ClockwerkApp
 
 			void				_ResetAllObjectsToLocal();
 
-#ifndef CLOCKWERK_STAND_ALONE
-			void				_CleanupNetworkStatusForNewConnection();
-			void				_DeleteConnection();
-			void				_AutoShowNetworkStatusWindow(
-									const char* initialStatus);
-			void				_AutoHideNetworkStatusWindow();
-#endif // CLOCKWERK_STAND_ALONE
-			void				_NotifyNetworkJobDone();
-
 			void				_InstallMimeType();
 
 	EditorSettings				fEditorSettings;
 
 	MainWindow*					fMainWindow;
-#ifndef CLOCKWERK_STAND_ALONE
-	ScheduleWindow*				fScheduleWindow;
-	ClientSettingsWindow*		fClientSettingsWindow;
-	UserWindow*					fUserWindow;
-	DisplaySettingsWindow*		fDisplaySettingsWindow;
-	NetworkStatusPanel*			fNetworkStatusPanel;
-#endif
 	RenderSettingsWindow*		fRenderSettingsWindow;
 	ErrorLogWindow*				fErrorLogWindow;
 
 	BFilePanel*					fOpenPanel;
 	BFilePanel*					fSavePanel;
 	BFilePanel*					fLastPanel;
-
-#ifndef CLOCKWERK_STAND_ALONE
-	JobConnection*				fConnection;
-	Synchronizer*				fSynchronizer;
-	Uploader*					fUploader;
-#endif
 
 	BMessage					fSettings;
 	BMessage					fScopes;

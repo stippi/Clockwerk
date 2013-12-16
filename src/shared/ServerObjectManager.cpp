@@ -288,7 +288,7 @@ ServerObject*
 ServerObjectManager::FindObject(const BString& serverID) const
 {
 	if (!fIDObjectMap.ContainsKey(serverID.String()))
-		return false;
+		return NULL;
 
 	return fIDObjectMap.Get(serverID.String()).value;
 

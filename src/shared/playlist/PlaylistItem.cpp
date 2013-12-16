@@ -13,7 +13,6 @@
 #include "AdvancedTransform.h"
 #include "CommonPropertyIDs.h"
 #include "KeyFrame.h"
-#include "NavigationInfo.h"
 #include "Playlist.h"
 #include "Property.h"
 #include "PropertyAnimator.h"
@@ -35,8 +34,6 @@ PlaylistItem::PlaylistItem(int64 startFrame,
 
 	, fVideoMuted(false)
 	, fAudioMuted(false)
-
-	, fNavigationInfo(NULL)
 {
 	_CreateProperties();
 }
@@ -62,10 +59,7 @@ PlaylistItem::PlaylistItem(const PlaylistItem& other, bool deep)
 
 	, fVideoMuted(other.fVideoMuted)
 	, fAudioMuted(other.fAudioMuted)
-
-	, fNavigationInfo(NULL)
 {
-	SetNavigationInfo(other.fNavigationInfo);
 }
 
 // constructor 
@@ -81,8 +75,6 @@ PlaylistItem::PlaylistItem(BMessage* archive)
 
 	, fVideoMuted(false)
 	, fAudioMuted(false)
-
-	, fNavigationInfo(NULL)
 {
 	_CreateProperties();
 
@@ -105,17 +97,11 @@ PlaylistItem::PlaylistItem(BMessage* archive)
 		fVideoMuted = false;
 	if (archive->FindBool("audio_muted", &fAudioMuted) < B_OK)
 		fAudioMuted = false;
-
-	// restore navigation info
-	BMessage navigationArchive;
-	if (archive->FindMessage("navigation info", &navigationArchive) == B_OK)
-		fNavigationInfo = new (nothrow) ::NavigationInfo(&navigationArchive);
 }
 
 // destructor
 PlaylistItem::~PlaylistItem()
 {
-	SetNavigationInfo(NULL);
 }
 
 // SelectedChanged
@@ -147,14 +133,6 @@ PlaylistItem::Archive(BMessage* into, bool deep) const
 		ret = into->AddBool("video_muted", fVideoMuted);
 	if (ret == B_OK)
 		ret = into->AddBool("audio_muted", fAudioMuted);
-
-	// store navigation info
-	if (ret == B_OK && fNavigationInfo) {
-		BMessage navigationArchive;
-		ret = fNavigationInfo->Archive(&navigationArchive);
-		if (ret == B_OK)
-			ret = into->AddMessage("navigation info", &navigationArchive);
-	}
 
 	// NOTE: we don't finish with class name,
 	// since we are not directly instantiatable
@@ -237,24 +215,9 @@ PlaylistItem::SetAudioMuted(bool muted)
 // MouseDown
 bool
 PlaylistItem::MouseDown(BPoint where, uint32 buttons, BRect canvasBounds,
-	double frame, PlaybackNavigator* navigator)
+	double frame)
 {
 	return false;
-}
-
-// SetNavigationInfo
-void
-PlaylistItem::SetNavigationInfo(const ::NavigationInfo* info)
-{
-	if (fNavigationInfo == info)
-		return;
-
-	delete fNavigationInfo;
-	fNavigationInfo = NULL;
-	if (info)
-		fNavigationInfo = new (nothrow) ::NavigationInfo(*info);
-
-	Notify();
 }
 
 // SetStartFrame
@@ -404,8 +367,6 @@ PlaylistItem::PlaylistItem(const PlaylistItem& other)
 
 	, fVideoMuted(other.fVideoMuted)
 	, fAudioMuted(other.fAudioMuted)
-
-	, fNavigationInfo(NULL)
 {
 }
 

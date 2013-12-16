@@ -417,7 +417,7 @@ Playlist::Height() const
 // MouseDown
 bool
 Playlist::MouseDown(BPoint where, uint32 buttons, BRect canvasBounds,
-	double frame, PlaybackNavigator* navigator)
+	double frame)
 {
 //printf("%p->Playlist::MouseDown(BPoint(%.1f, %.1f), %ld, "
 //	"BRect(%.1f, %.1f, %.1f, %.1f), %p)\n", this, where.x, where.y,
@@ -446,8 +446,7 @@ Playlist::MouseDown(BPoint where, uint32 buttons, BRect canvasBounds,
 		BPoint localWhere = transform.InverseTransform(where);
 		double localFrame = frame - item->StartFrame();
 		if (item->Bounds(bounds, false).Contains(localWhere)
-			&& item->MouseDown(localWhere, buttons, bounds, localFrame,
-				navigator)) {
+			&& item->MouseDown(localWhere, buttons, bounds, localFrame)) {
 			return true;
 		}
 	}

@@ -11,7 +11,6 @@
 #include <Message.h>
 #include <View.h>
 
-#include "PlaybackNavigator.h"
 #include "Playlist.h"
 
 using std::nothrow;
@@ -50,10 +49,8 @@ printf("NavigationManipulator::MouseDown(%.1f, %.1f), fPlaylist = %p\n",
 	uint32 buttons = fView->MouseInfo()->buttons;
 	BRect canvasBounds(0, 0, fPlaylist->Width() - 1, fPlaylist->Height() - 1);
 	double currentFrame = fCurrentFrame;
-	PlaybackNavigator* navigator = PlaybackNavigator::Default();
 
-	return fPlaylist->MouseDown(where, buttons, canvasBounds, currentFrame,
-		navigator);
+	return fPlaylist->MouseDown(where, buttons, canvasBounds, currentFrame);
 }
 
 // MouseMoved

@@ -20,7 +20,6 @@ local sourceDirs =
 	shared/generic/gui
 	shared/generic/gui/scrollview
 	shared/generic/gui/stateview
-	shared/generic/xml
 	shared/navigation
 	shared/painter
 	shared/playback
@@ -30,7 +29,6 @@ local sourceDirs =
 	shared/playlist
 	shared/playlist/rendering
 	shared/playlist/view
-	shared/schedule
 	shared/tools
 	shared/tools/cut
 	shared/tools/delete
@@ -47,13 +45,7 @@ for sourceDir in $(sourceDirs) {
 
 # system include directories (relative to $(TOP))
 local sysIncludeDirs =
-	include/layout
 	include/freetype
-	include/xerces
-	include/xerces/dom
-	include/xerces/framework
-	include/xerces/sax
-	include/xerces/util
 	src/third_party/agg/include
 	src/third_party/agg/font_freetype
 ;
@@ -66,7 +58,6 @@ for sysIncludeDir in $(sysIncludeDirs) {
 
 # local include paths
 SubDirHdrs [ FDirName $(TOP) src shared icons ] ;
-SubDirHdrs [ FDirName $(TOP) src shared network ] ;
 
 
 StaticLibrary libshared_common.a :
@@ -128,12 +119,8 @@ StaticLibrary libshared_player_editor.a :
 	Document.cpp
 	# document/export
 	Exporter.cpp
-#	XMLExporter.cpp
-#	xml_export.cpp
 	# document/import
 	Importer.cpp
-#	XMLImporter.cpp
-#	xml_import.cpp
 
 	# generic/commands
 	Command.cpp
@@ -176,10 +163,6 @@ StaticLibrary libshared_player_editor.a :
 	Selection.cpp
 	regex.cpp
 	WeatherStatus.cpp
-
-	# navigation
-	NavigationInfo.cpp
-	PlaybackNavigator.cpp
 
 	# painter
 	AdvancedTransform.cpp
@@ -269,38 +252,13 @@ StaticLibrary libshared_player_editor.a :
 	DisplayRange.cpp
 	LoopMode.cpp
 
-	# schedule
-	Schedule.cpp
-	ScheduleItem.cpp
-	ScheduleObserver.cpp
-
 	# profiling
 #	trace.c
 ;
 
 
-StaticLibrary libshared_xml.a :
-	# generic
-	AttributeAccessor.cpp
-
-	# generic/xml
-	BinDataIOInputStream.cpp
-	DataIOInputSource.cpp
-	DOMNodeWriter.cpp
-	IDManager.cpp
-	ParameterManager.cpp
-	XercesDOMHelper.cpp
-	XercesSupport.cpp
-	XMLHelper.cpp
-	XMLStorable.cpp
-	XMLSupport.cpp
-#	trace.c
-;
-
 MakeLocate libshared_common.a : [ FDirName $(OBJECTS_DIR) lib ] ;
 MakeLocate libshared_player_editor.a : [ FDirName $(OBJECTS_DIR) lib ] ;
-MakeLocate libshared_xml.a : [ FDirName $(OBJECTS_DIR) lib ] ;
 
 
-SubInclude TOP src shared network ;
 SubInclude TOP src shared generic ;

@@ -177,9 +177,6 @@ public:
 			void				_FollowPlaybackFrame();
 
 			void				_ShowPopupMenuForEmptiness(BPoint where);
-			void				_CreateOrActivateNavigationInfoPanel(
-									const BMessage* message,
-									const char* label, const char* targetID);
 
 	::Playlist*					fPlaylist;
 	ServerObjectManager*		fClipLibrary;
@@ -205,7 +202,6 @@ public:
 
 	TimeView*					fTimeView;
 	TrackView*					fTrackView;
-	NavigationInfoPanel*		fNavigationInfoPanel;
 };
 
 #endif // TIMELINE_VIEW_H

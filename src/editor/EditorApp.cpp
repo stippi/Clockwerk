@@ -42,20 +42,6 @@
 #include "RenderSettingsWindow.h"
 #include "StatusOutput.h"
 
-//#ifndef CLOCKWERK_STAND_ALONE
-#  include "ClientSettingsWindow.h"
-#  include "ConnectionFactory.h"
-#  include "DisplaySettingsWindow.h"
-#  include "JobConnection.h"
-#  include "ListScopesJob.h"
-#  include "NetworkStatusPanel.h"
-#  include "ScheduleWindow.h"
-#  include "Synchronizer.h"
-#  include "Uploader.h"
-#  include "UploadSelectionPanel.h"
-#  include "UserWindow.h"
-//#endif
-
 #include "MessageConstants.h"
 
 using std::nothrow;
@@ -63,13 +49,6 @@ using std::nothrow;
 static const char* kCurrentDocKey = "current doc id";
 static const char* kScopesKey = "scopes";
 static const char* kWindowFrameKey = "main window frame";
-#ifndef CLOCKWERK_STAND_ALONE
-static const char* kScheduleWindowFrameKey = "scd window frame";
-static const char* kClientSettingsWindowFrameKey = "cs window frame";
-static const char* kUserWindowFrameKey = "us window frame";
-static const char* kNetworkStatusWindowFrameKey = "nw window frame";
-static const char* kDisplaySettingsWindowFrameKey = "ds window frame";
-#endif
 
 enum {
 	MSG_LIST_SCOPES					= 'lssp',
@@ -84,25 +63,12 @@ EditorApp::EditorApp()
 	: ClockwerkApp(kClockwerkMimeSig)
 	, fEditorSettings()
 	, fMainWindow(NULL)
-#ifndef CLOCKWERK_STAND_ALONE
-	, fScheduleWindow(NULL)
-	, fClientSettingsWindow(NULL)
-	, fUserWindow(NULL)
-	, fDisplaySettingsWindow(NULL)
-	, fNetworkStatusPanel(NULL)
-#endif
 	, fRenderSettingsWindow(NULL)
 	, fErrorLogWindow(NULL)
 
 	, fOpenPanel(NULL)
 	, fSavePanel(NULL)
 	, fLastPanel(NULL)
-
-#ifndef CLOCKWERK_STAND_ALONE
-	, fConnection(NULL)
-	, fSynchronizer(NULL)
-	, fUploader(NULL)
-#endif
 {
 }
 
@@ -111,20 +77,6 @@ EditorApp::~EditorApp()
 {
 	delete fOpenPanel;
 	delete fSavePanel;
-
-#ifndef CLOCKWERK_STAND_ALONE
-	if (fSynchronizer && Lock()) {
-		RemoveHandler(fSynchronizer);
-		delete fSynchronizer;
-		Unlock();
-	}
-	if (fUploader && Lock()) {
-		RemoveHandler(fUploader);
-		delete fUploader;
-		Unlock();
-	}
-	delete fConnection;
-#endif // CLOCKWERK_STAND_ALONE
 
 	delete fObjectFactory;
 }
@@ -137,32 +89,19 @@ EditorApp::QuitRequested()
 {
 	// the schedule window maintains it's own command
 	// stack, and might have unsaved changes...
-#ifndef CLOCKWERK_STAND_ALONE
-	if (fScheduleWindow)
-		fScheduleWindow->PrepareForQuit();
-#endif
-
 	if (_SynchronizeClipsOnDisk(false, true, true) == USER_CANCELED)
 		return false;
 
 	_SaveSettings();
 
-	if (fMainWindow) {
+	if (fMainWindow != NULL) {
 		fMainWindow->Lock();
 		fMainWindow->PrepareForQuit();
 		fMainWindow->Quit();
 		fMainWindow = NULL;
 	}
 
-#ifndef CLOCKWERK_STAND_ALONE
-	_QuitWindow(&fScheduleWindow);
-	_QuitWindow(&fClientSettingsWindow);
-	_QuitWindow(&fUserWindow);
-	_QuitWindow(&fDisplaySettingsWindow);
-	_QuitWindow(&fNetworkStatusPanel);
-#endif
-
-	if (fRenderSettingsWindow) {
+	if (fRenderSettingsWindow != NULL) {
 		fRenderSettingsWindow->Lock();
 		fRenderSettingsWindow->SaveSettings();
 		fRenderSettingsWindow->Quit();
@@ -335,128 +274,6 @@ ret = B_ERROR;
 			break;
 		}
 
-#ifndef CLOCKWERK_STAND_ALONE
-		case MSG_SHOW_SCHEDULES:
-			_ShowWindow(fScheduleWindow);
-			break;
-
-		case MSG_SHOW_CLIENT_SETTINGS:
-			_ShowWindow(fClientSettingsWindow);
-			break;
-
-		case MSG_SHOW_USERS:
-			_ShowWindow(fUserWindow);
-			break;
-
-		case MSG_SHOW_DISPLAY_SETTINGS:
-			_ShowWindow(fDisplaySettingsWindow);
-			break;
-
-		case MSG_NETWORK_DISCONNECT:
-			// shut down existing connection
-			_DeleteConnection();
-			break;
-
-		case MSG_NETWORK_CONNECT: {
-			// shut down existing connection
-			_DeleteConnection();
-
-			BString clientID = fEditorSettings.ClientID();
-			const char* address;
-			BString statusMessage;
-			if (message->FindString("address", &address) < B_OK) {
-				address = fEditorSettings.Server();
-				statusMessage = "Connecting to address from settings: ";
-			} else {
-				statusMessage = "Connecting to specified address: ";
-			}
-
-			statusMessage << address << "\n";
-			statusMessage << "With id: '" << clientID << "'\n";
-
-			fConnection = JobConnection::CreateConnection();
-			if (!fConnection) {
-				print_error("No memory to create connection!");
-				break;
-			}
-
-			fConnection->AddListener(this);
-			_AutoShowNetworkStatusWindow(statusMessage.String());
-
-			status_t error = fConnection->Init(clientID.String(), address);
-				// NOTE: this will trigger synchronous notifications,
-				// which might in turn cause fNetworkStatusPanel
-				// and fConnection to be NULL again after Init() in
-				// case of failure!
-
-			if (error == B_OK) {
-				// get the scopes from the server
-				ListScopesJob* job = new (nothrow) ListScopesJob(this,
-					new BMessage(MSG_LIST_SCOPES));
-				error = fConnection->ScheduleJob(job, true);
-				if (error != B_OK) {
-					print_error("EditorApp::MessageReceived() - "
-								"failed to schedule scope listing job '%s' "
-								"failed.\n", strerror(error));
-				}
-			}
-			break;
-		}
-
-		case MSG_NETWORK_UPDATE:
-			_Synchronize();
-			break;
-
-		case MSG_SYNCHRONIZED: {
-			bool errorsOccured;
-			if (message->FindBool("errors occured", &errorsOccured) < B_OK)
-				errorsOccured = false;
-			bool canceled;
-			if (message->FindBool("canceled", &canceled) < B_OK)
-				canceled = false;
-			_Synchronized(!errorsOccured, canceled);
-			break;
-		}
-
-		case MSG_NETWORK_COMMIT:
-			_Upload();
-			break;
-		case MSG_ALL_OBJECTS_UPLOADED: {
-			status_t error;
-			if (message->FindInt32("error", &error) < B_OK)
-				error = B_OK;
-			_Uploaded(error == B_OK);
-			break;
-		}
-
-		case MSG_NETWORK_STOP:
-			if (fSynchronizer)
-				fSynchronizer->Cancel();
-			else if (fUploader)
-				fUploader->Cancel();
-			else if (fConnection)
-				_DeleteConnection();
-			break;
-
-		case MSG_NETWORK_SHOW_STATUS:
-			fNetworkStatusPanel->SetServerAndClientID(
-				fEditorSettings.Server(),
-				fEditorSettings.ClientID().String());
-			_ShowWindow(fNetworkStatusPanel);
-			break;
-		case MSG_NETWORK_HIDE_STATUS:
-			if (fNetworkStatusPanel->Lock()) {
-				if (!fNetworkStatusPanel->IsHidden())
-					fNetworkStatusPanel->Hide();
-				fNetworkStatusPanel->Unlock();
-			}
-			break;
-
-		case MSG_NETWORK_RESET_ALL_OBJECTS:
-			_ResetAllObjectsToLocal();
-			break;
-#endif // CLOCKWERK_STAND_ALONE
-
 		case MSG_LIST_SCOPES: {
 			BMessage listing;
 			if (message->FindMessage("listing", &listing) == B_OK)
@@ -509,41 +326,12 @@ EditorApp::ReadyToRun()
 	InitProgressPanel* splashScreen = new InitProgressPanel();
 	splashScreen->Show();
 
-#ifdef CLOCKWERK_STAND_ALONE
 	ret = create_directory(fEditorSettings.MediaFolder().String(), 0777);
 	if (ret < B_OK) {
 		printf("failed to create directory \"%s\": %s\n",
 			fEditorSettings.MediaFolder().String(), strerror(ret));
 	}
-#else
-	{
-		BEntry entry(fEditorSettings.MediaFolder().String());
-		if (!entry.Exists()) {
-			BString message;
-			message << "The object library folder '";
-			message << fEditorSettings.MediaFolder();
-			message << "' does not exists. Should it be created now?\n\n";
-			message << "(Maybe it is on another volume which is not ";
-			message << "mounted?)";
-			BAlert* alert = new BAlert("library missing", message.String(),
-				"Ignore", "Quit", "Create", B_WIDTH_FROM_WIDEST,
-				B_WARNING_ALERT);
-			int32 choice = alert->Go();
-			if (choice == 1) {
-				Quit();
-				return;
-			} else if (choice == 2) {
-				ret = create_directory(
-					fEditorSettings.MediaFolder().String(), 0777);
-				if (ret < B_OK) {
-					print_error("failed to create directory \"%s\": %s\n",
-						fEditorSettings.MediaFolder().String(),
-						strerror(ret));
-				}
-			}
-		}
-	}
-#endif
+
 	AttributeServerObjectManager* library
 		= new AttributeServerObjectManager();
 	ret = library->Init(fEditorSettings.MediaFolder().String(),
@@ -590,67 +378,6 @@ EditorApp::ReadyToRun()
 	splashScreen->PostMessage(B_QUIT_REQUESTED);
 
 	fMainWindow->Show();
-
-#ifndef CLOCKWERK_STAND_ALONE
-	// create schedule window
-	_RestoreFrameSettings(windowFrame, kScheduleWindowFrameKey,
-		BRect(50.0, 50.0, 500.0, 350.0));
-
-	fScheduleWindow = new ScheduleWindow(windowFrame);
-	fScheduleWindow->SetObjectManager(fObjectLibrary);
-	fScheduleWindow->SetObjectFactory(fObjectFactory);
-	fScheduleWindow->SetScopes(&fScopes);
-	fScheduleWindow->RestoreSettings(&fSettings);
-
-	fScheduleWindow->Hide();
-	fScheduleWindow->Show();
-
-	// create client settings window
-	_RestoreFrameSettings(windowFrame, kClientSettingsWindowFrameKey,
-		BRect(50.0, 50.0, 500.0, 350.0));
-
-	fClientSettingsWindow = new ClientSettingsWindow(windowFrame, this);
-	fClientSettingsWindow->SetObjectManager(fObjectLibrary);
-	fClientSettingsWindow->SetScopes(&fScopes);
-
-	fClientSettingsWindow->Hide();
-	fClientSettingsWindow->Show();
-
-	// create user window
-	_RestoreFrameSettings(windowFrame, kUserWindowFrameKey,
-		BRect(50.0, 50.0, 500.0, 350.0));
-
-	fUserWindow = new UserWindow(windowFrame, this);
-	fUserWindow->SetObjectManager(fObjectLibrary);
-
-	fUserWindow->Hide();
-	fUserWindow->Show();
-
-	// create display settings window
-	_RestoreFrameSettings(windowFrame, kDisplaySettingsWindowFrameKey,
-		BRect(50.0, 50.0, 500.0, 350.0));
-
-	fDisplaySettingsWindow = new DisplaySettingsWindow(windowFrame, this);
-	fDisplaySettingsWindow->SetObjectManager(fObjectLibrary);
-	fDisplaySettingsWindow->SetScopes(&fScopes);
-
-	fDisplaySettingsWindow->Hide();
-	fDisplaySettingsWindow->Show();
-
-	// create network status window
-	_RestoreFrameSettings(windowFrame, kNetworkStatusWindowFrameKey,
-		BRect(50.0, 50.0, 500.0, 350.0));
-
-	fNetworkStatusPanel = new NetworkStatusPanel(windowFrame, fMainWindow, this,
-		NULL, NULL);
-	_CleanupNetworkStatusForNewConnection();
-
-	fNetworkStatusPanel->Hide();
-	fNetworkStatusPanel->Show();
-
-	fNetworkStatusPanel->SetLabelAndMessage("Hide",
-		new BMessage(MSG_NETWORK_HIDE_STATUS), false);
-#endif // CLOCKWERK_STAND_ALONE
 
 	// create render settings window
 	fRenderSettingsWindow = new RenderSettingsWindow(
@@ -734,46 +461,6 @@ EditorApp::Pulse()
 {
 }
 
-// #pragma mark - JobConnectionListener
-
-
-#ifndef CLOCKWERK_STAND_ALONE
-
-// Connecting
-void
-EditorApp::Connecting(JobConnection* connection)
-{
-	if (fNetworkStatusPanel)
-		fNetworkStatusPanel->PostMessage(MSG_CONNECTING);
-}
-
-// Connected
-void
-EditorApp::Connected(JobConnection* connection)
-{
-	_AutoHideNetworkStatusWindow();
-	if (fNetworkStatusPanel)
-		fNetworkStatusPanel->PostMessage(MSG_CONNECTED);
-}
-
-// Disconnected
-void
-EditorApp::Disconnected(JobConnection* connection)
-{
-	_CleanupNetworkStatusForNewConnection();
-	if (fNetworkStatusPanel)
-		fNetworkStatusPanel->PostMessage(MSG_DISCONNECTED);
-}
-
-// Deleted
-void
-EditorApp::Deleted(JobConnection* connection)
-{
-	Disconnected(connection);
-}
-
-#endif // CLOCKWERK_STAND_ALONE
-
 // #pragma mark -
 
 // _SynchronizeClipsOnDisk
@@ -811,9 +498,6 @@ EditorApp::_SynchronizeClipsOnDisk(bool reloadFromDisk, bool askUser,
 			// this is supposed to bring back the application's state
 			// to the on-disk state of the object library
 			_ReInitClipsFromDisk();
-			// TODO: refactor this so the main window doesn't think
-			// we are synchronizing...
-			_NotifyNetworkJobDone();
 		}
 		return USER_DIDNT_SAVE;
 	}  else if (choice == 1) {
@@ -1553,83 +1237,6 @@ EditorApp::_ResetAllObjectsToLocal()
 		object->SetStatus(SYNC_STATUS_LOCAL);
 		object->SetVersion(0);
 	}
-}
-
-#ifndef CLOCKWERK_STAND_ALONE
-
-// _CleanupNetworkStatusForNewConnection
-void
-EditorApp::_CleanupNetworkStatusForNewConnection()
-{
-//	BString networkStatus("Select Nerwork->Connect to connect to the server '");
-//	networkStatus << fEditorSettings.Server() << "'\n";
-//	fNetworkStatusPanel->ClearOutput(networkStatus.String());
-}
-
-// _DeleteConnection
-void
-EditorApp::_DeleteConnection()
-{
-	if (!fConnection)
-		return;
-
-	if (fSynchronizer) {
-		_Synchronized(false);
-	}
-
-	if (fNetworkStatusPanel->Lock()) {
-		fNetworkStatusPanel->StatusOutput()->PrintWarningMessage(
-			"Closing connection.");
-		fNetworkStatusPanel->SetConnection(NULL);
-		fNetworkStatusPanel->Unlock();
-	}
-
-	delete fConnection;
-	fConnection = NULL;
-}
-
-// _AutoShowNetworkStatusWindow
-void
-EditorApp::_AutoShowNetworkStatusWindow(const char* initialStatus)
-{
-	// this function should show the network status panel
-	// while the connection is being made
-	if (!fNetworkStatusPanel->Lock())
-		return;
-
-	fNetworkStatusPanel->SetServerAndClientID(
-		fEditorSettings.Server(),
-		fEditorSettings.ClientID().String());
-	fNetworkStatusPanel->SetConnection(fConnection);
-	fNetworkStatusPanel->SetLabelAndMessage("Cancel",
-		new BMessage(MSG_NETWORK_DISCONNECT), true);
-	fNetworkStatusPanel->ClearOutput(initialStatus);
-
-	if (fNetworkStatusPanel->IsHidden())
-		fNetworkStatusPanel->Show();
-
-	fNetworkStatusPanel->Unlock();
-}
-
-// _AutoHideNetworkStatusWindow
-void
-EditorApp::_AutoHideNetworkStatusWindow()
-{
-printf("EditorApp::_AutoHideNetworkStatusWindow()\n");
-	fNetworkStatusPanel->SetLabelAndMessage("Hide",
-		new BMessage(MSG_NETWORK_HIDE_STATUS), false);
-}
-
-#endif // CLOCKWERK_STAND_ALONE
-
-// _NotifyNetworkJobDone
-void
-EditorApp::_NotifyNetworkJobDone()
-{
-#ifndef CLOCKWERK_STAND_ALONE
-	fNetworkStatusPanel->PostMessage(MSG_NETWORK_JOB_DONE);
-#endif
-	fMainWindow->PostMessage(MSG_REATTACH);
 }
 
 // _InstallMimeType

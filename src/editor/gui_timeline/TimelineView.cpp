@@ -34,8 +34,6 @@
 #include "InsertCommand.h"
 #include "LoopMode.h"
 #include "MultipleManipulatorState.h"
-#include "NavigationInfo.h"
-#include "NavigationInfoPanel.h"
 #include "PlaybackManager.h"
 #include "Playlist.h"
 #include "PlaylistItem.h"
@@ -47,7 +45,6 @@
 #include "Selection.h"
 #include "SetAudioMutedCommand.h"
 #include "SetVideoMutedCommand.h"
-#include "SetNavigationInfoCommand.h"
 #include "TimelineMessages.h"
 #include "TimelineTool.h"
 #include "TimeView.h"
@@ -87,7 +84,6 @@ TimelineView::TimelineView(const char* name)
 
 	, fTimeView(NULL)
 	, fTrackView(NULL)
-	, fNavigationInfoPanel(NULL)
 {
 }
 
@@ -169,40 +165,6 @@ TimelineView::MessageReceived(BMessage* message)
 			PlaylistItem* item;
 			if (message->FindPointer("item", (void**)&item) == B_OK)
 				PerformCommand(new (nothrow) SetAudioMutedCommand(item));
-			break;
-		}
-
-		case MSG_ADD_NAVIGATOR_INFO:
-		case MSG_EDIT_NAVIGATOR_INFO: {
-			PlaylistItem* item;
-			if (message->FindPointer("item", (void**)&item) == B_OK) {
-				BString currentTargetID;
-				if (const NavigationInfo* info = item->NavigationInfo())
-					currentTargetID = info->TargetID();
-
-				_CreateOrActivateNavigationInfoPanel(message,
-					item->Name().String(), currentTargetID.String());
-			}
-			break;
-		}
-		case MSG_REMOVE_NAVIGATOR_INFO: {
-			PlaylistItem* item;
-			if (message->FindPointer("item", (void**)&item) == B_OK) {
-				PerformCommand(new (nothrow) SetNavigationInfoCommand(item,
-					NULL));
-			}
-			break;
-		}
-		case MSG_SET_NAVIGATOR_INFO: {
-			PlaylistItem* item;
-			const char* targetClipID;
-			if (message->FindPointer("item", (void**)&item) == B_OK
-				&& message->FindString("target id", &targetClipID) == B_OK) {
-				NavigationInfo info;
-				info.SetTargetID(targetClipID);
-				PerformCommand(new (nothrow) SetNavigationInfoCommand(item,
-					&info));
-			}
 			break;
 		}
 
@@ -1398,28 +1360,5 @@ TimelineView::_ShowPopupMenuForEmptiness(BPoint where)
 	menu->SetTargetForItems(this);
 
 	show_popup_menu(menu, where, this, false);
-}
-
-// _CreateOrActivateNavigationInfoPanel
-void
-TimelineView::_CreateOrActivateNavigationInfoPanel(const BMessage* message,
-	const char* label, const char* targetID)
-{
-	BMessage navInfoMessage(*message);
-	navInfoMessage.what = MSG_SET_NAVIGATOR_INFO;
-	if (fNavigationInfoPanel && fNavigationInfoPanel->Lock()) {
-		while (fNavigationInfoPanel->IsHidden())
-			fNavigationInfoPanel->Show();
-		fNavigationInfoPanel->Activate();
-		fNavigationInfoPanel->SetMessage(navInfoMessage);
-		fNavigationInfoPanel->Unlock();
-	} else {
-		fNavigationInfoPanel = new NavigationInfoPanel(Window(),
-			navInfoMessage, BMessenger(this));
-		fNavigationInfoPanel->Show();
-	}
-
-	fNavigationInfoPanel->SetLabel(label);
-	fNavigationInfoPanel->SetTargetID(targetID);
 }
 

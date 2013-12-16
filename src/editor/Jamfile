@@ -5,15 +5,12 @@ local sourceDirs =
 	debug
 	editor
 	editor/auto_playlist
-	editor/client_settings
 	editor/commands
-	editor/display_settings
 	editor/gui
 	editor/gui_stage
 	editor/gui_timeline
 	editor/rendering
 	editor/rendering/view
-	editor/schedule
 	editor/tools
 	editor/tools/cut
 	editor/tools/delete
@@ -22,7 +19,6 @@ local sourceDirs =
 	editor/tools/pick
 	editor/tools/transform
 	editor/tools/transform/commands
-	editor/user
 	shared
 	shared/commands
 	shared/generic
@@ -39,11 +35,7 @@ local sourceDirs =
 	shared/generic/property/command
 	shared/generic/property/view
 	shared/generic/property/view/specific_properties
-	shared/generic/xml
 	shared/gui
-	shared/navigation
-	shared/network
-	shared/network/jobs
 	shared/playlist/rendering
 ;
 
@@ -55,12 +47,6 @@ for sourceDir in $(sourceDirs) {
 
 # system include directories
 local sysIncludeDirs =
-#	include/cryptlib
-#	include/xerces
-#	include/xerces/dom
-#	include/xerces/framework
-#	include/xerces/sax
-#	include/xerces/util
 	src/third_party/agg/include
 	src/third_party/agg/font_freetype
 ;
@@ -86,10 +72,8 @@ local localIncludeDirs =
 	shared/generic/logging
 	shared/generic/observer
 	shared/generic/property/specific_properties
-#	shared/generic/xml
 	shared/gui
 	shared/icons
-	shared/navigation
 	shared/painter
 	shared/playback
 	shared/playback/audio
@@ -98,7 +82,6 @@ local localIncludeDirs =
 	shared/playlist
 	shared/playlist/rendering
 	shared/playlist/view
-	shared/schedule
 
 	third_party/agg/font_freetype
 ;
@@ -123,11 +106,6 @@ debugSourceFiles = $(debugRealSourceFiles) ;
 Application Clockwerk :
 	# allocation debugging
 	$(debugSourceFiles)
-
-	# shared
-#	ReferencedObjectFinder.cpp
-#	Synchronizer.cpp
-#	Uploader.cpp
 
 	# shared/commands
 	AddObjectsCommand.cpp
@@ -154,7 +132,6 @@ Application Clockwerk :
 	# shared/gui
 	ErrorLogWindow.cpp
 	InitProgressPanel.cpp
-#	NetworkStatusPanel.cpp
 	ObjectCLVItem.cpp
 	ObjectColumnListView.cpp
 	ObjectItem.cpp
@@ -162,11 +139,6 @@ Application Clockwerk :
 	ScopeMenuField.cpp
 	StatusOutputView.cpp
 	TextViewPopup.cpp
-#	UploadObjectListView.cpp
-#	UploadSelectionPanel.cpp
-
-	# shared/navigation
-	EditorPlaybackNavigator.cpp
 
 	# editor
 	EditorApp.cpp
@@ -179,32 +151,19 @@ Application Clockwerk :
 	PlaylistItemItem.cpp
 	PlaylistListView.cpp
 
-	# editor/client_settings
-	ClientSettingsListView.cpp
-	ClientSettingsWindow.cpp
-
 	# editor/commands
-	ChangeScheduleItemCommand.cpp
 	CloseGapCommand.cpp
 	DuplicateItemsCommand.cpp
 	InsertCommand.cpp
 	InsertOrRemoveTrackCommand.cpp
-	InsertScheduleItemsAnywhereCommand.cpp
-	InsertScheduleItemsCommand.cpp
 	MovePlaylistItemsCommand.cpp
 	MoveTrackCommand.cpp
-	RemoveScheduleItemsCommand.cpp
 	ReplaceClipCommand.cpp
 	SetAudioMutedCommand.cpp
-	SetNavigationInfoCommand.cpp
 	SetSoloTrackCommand.cpp
 	SetTrackPropertiesCommand.cpp
 	SetVideoMutedCommand.cpp
 	TrackingCommand.cpp
-
-	# editor/client_settings
-	DisplaySettingsListView.cpp
-	DisplaySettingsWindow.cpp
 
 	# editor/gui
 	ClipGroup.cpp
@@ -248,19 +207,6 @@ Application Clockwerk :
 	RenderSettingsWindow.cpp
 	RenderWindow.cpp
 
-	# editor/schedule
-#	InsertScheduleItemDropState.cpp
-#	PlaylistObjectListView.cpp
-#	ScheduleItemManipulator.cpp
-#	ScheduleListGroup.cpp
-#	ScheduleObjectListView.cpp
-#	SchedulePropertiesView.cpp
-#	ScheduleTopView.cpp
-#	ScheduleView.cpp
-#	ScheduleWindow.cpp
-#	TimeRangePanel.cpp
-#	WeekMenuItem.cpp
-
 	# editor/tools
 	ConfigView.cpp
 	StageTool.cpp
@@ -302,10 +248,6 @@ Application Clockwerk :
 	# editor/tools/transform/commands
 	TransformCommand.cpp
 	TransformObjectsCommand.cpp
-
-	# editor/user
-	UserListView.cpp
-	UserWindow.cpp
 
 	# shared/generic
 	ArgumentVector.cpp
@@ -386,22 +328,6 @@ Application Clockwerk :
 	NummericalTextView.cpp
 	StringTextView.cpp
 
-	# shared/generic/network/jobs
-#	CommandJob.cpp
-#	DownloadJob.cpp
-#	FinishTransactionJob.cpp
-#	GetChangeSetJob.cpp
-#	GetRevisionJob.cpp
-#	GetUnrevisionedChangeSetsJob.cpp
-#	GroupUploadJob.cpp
-#	InformingJob.cpp
-#	JobConnection.cpp
-#	ListFilesJob.cpp
-#	ListScopesJob.cpp
-#	RemoveJob.cpp
-#	StartTransactionJob.cpp
-#	UploadJob.cpp
-
 	# shared/playlist/rendering
 	PlaylistRenderer.cpp
 	SavePlaylistSnapshot.cpp
@@ -409,10 +335,7 @@ Application Clockwerk :
 	:
 	# libs
 	libshared_common.a
-#	libshared_logging.a
-#	libshared_network.a
 	libshared_player_editor.a
-#	libshared_xml.a
 	libshared_common.a	# must be last
 
 	be media tracker translation $(NETWORK_LIBS)

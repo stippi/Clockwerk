@@ -15,7 +15,6 @@
 class AudioReader;
 class FloatProperty;
 class NavigationInfo;
-class PlaybackNavigator;
 class Playlist;
 class PropertyAnimator;
 class ServerObjectManager;
@@ -76,13 +75,7 @@ public:
 	virtual BString				Name() const = 0;
 
 	virtual	bool				MouseDown(BPoint where, uint32 buttons,
-									BRect canvasBounds, double frame,
-									PlaybackNavigator* navigator);
-
-			void				SetNavigationInfo(const ::NavigationInfo* info);
-			::NavigationInfo*	NavigationInfo() const
-									{ return fNavigationInfo; }
-
+									BRect canvasBounds, double frame);
 
 			void				SetStartFrame(int64 startFrame);
 			int64				StartFrame() const
@@ -158,8 +151,6 @@ public:
 
 			bool				fVideoMuted;
 			bool				fAudioMuted;
-
-			::NavigationInfo*	fNavigationInfo;
 };
 
 #endif // PLAYLIST_ITEM_H

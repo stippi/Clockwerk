@@ -254,25 +254,6 @@ SplitManipulator::DisplayPopupMenu(BPoint where)
 		message->AddPointer("clip", clipItem->Clip());
 		selectClipItem = new BMenuItem("Select Clip", message);
 		menu->AddItem(selectClipItem);
-
-		if (clipItem->NavigationInfo()) {
-			message = new BMessage(MSG_EDIT_NAVIGATOR_INFO);
-			message->AddPointer("item", fItem);
-			item = new BMenuItem("Edit Navigation Info" B_UTF8_ELLIPSIS,
-				message);
-			menu->AddItem(item);
-
-			message = new BMessage(MSG_REMOVE_NAVIGATOR_INFO);
-			message->AddPointer("item", fItem);
-			item = new BMenuItem("Remove Navigation Info", message);
-			menu->AddItem(item);
-		} else {
-			message = new BMessage(MSG_ADD_NAVIGATOR_INFO);
-			message->AddPointer("item", fItem);
-			item = new BMenuItem("Add Navigation Info" B_UTF8_ELLIPSIS,
-				message);
-			menu->AddItem(item);
-		}
 	} else
 		separator = false;
 

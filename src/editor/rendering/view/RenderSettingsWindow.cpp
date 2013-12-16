@@ -39,8 +39,6 @@
 #  include "LanguageManager.h"
 #endif
 #include "RenderPreset.h"
-#include "XMLHelper.h"
-#include "XMLSupport.h"
 
 // debugging
 #include "Debug.h"

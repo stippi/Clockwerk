@@ -15,7 +15,6 @@
 
 #include "Clip.h"
 #include "CommonPropertyIDs.h"
-#include "PlaybackNavigator.h"
 #include "Playlist.h"
 #include "PlaylistItemAudioReader.h"
 #include "Property.h"
@@ -206,7 +205,7 @@ ClipPlaylistItem::Name() const
 // MouseDown
 bool
 ClipPlaylistItem::MouseDown(BPoint where, uint32 buttons, BRect canvasBounds,
-	double frame, PlaybackNavigator* navigator)
+	double frame)
 {
 //printf("%p->ClipPlaylistItem::MouseDown(BPoint(%.1f, %.1f), %ld, "
 //	"BRect(%.1f, %.1f, %.1f, %.1f), %p)\n", this, where.x, where.y,
@@ -218,15 +217,10 @@ ClipPlaylistItem::MouseDown(BPoint where, uint32 buttons, BRect canvasBounds,
 		AffineTransform transform = Transformation();
 		BPoint transformedWhere = transform.Transform(where);
 		return playlist->MouseDown(transformedWhere, buttons, canvasBounds,
-			frame, navigator);
+			frame);
 	}
 
-	const ::NavigationInfo* info = NavigationInfo();
-	if (!info || !navigator)
-		return false;
-
-	navigator->Navigate(info);
-	return true;
+	return false;
 }
 
 // MaxDuration

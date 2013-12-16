@@ -105,12 +105,12 @@ RenderJob::RenderJob(BWindow* window, const char* docName,
 	fAudioFrameRate(preset->AudioFrameRate())
 {
 	// configure file format
-	media_format_family family;
+//	media_format_family family;
 	media_file_format mff;
 	int32 cookie = 0;
 	while (get_next_file_format(&cookie, &mff) == B_OK) {
 		if (strcmp(mff.pretty_name, preset->FormatFamily().String()) == 0) {
-			family = mff.family;
+//			family = mff.family;
 			break;
 		}
 	}

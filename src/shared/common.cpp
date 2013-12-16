@@ -20,15 +20,13 @@
 
 #include "CommonPropertyIDs.h"
 #include "ServerObject.h"
-#include "XMLHelper.h"
-#include "XMLSupport.h"
 
 // fatal
 void
 fatal(status_t error)
 {
 	print_error("program terminated with fatal error: %s\n", strerror(error));
-	exit(error);
+	debugger("fatal error encountered");
 }
 
 // copy_data
