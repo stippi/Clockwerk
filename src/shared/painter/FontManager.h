@@ -76,7 +76,7 @@ private:
 
 			void				_MakeEmpty();
 	static	int32				_UpdateThreadEntry(void* cookie);
-			void				_Update(BDirectory* fontFolder);
+			void				_Update(const char* path);
 			void				_AddFont(const BEntry& entry);
 			void				_ExtractFontNames(FT_Face face,
 									font_file* fontFile,

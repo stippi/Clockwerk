@@ -69,12 +69,6 @@ SubDirHdrs [ FDirName $(TOP) src shared icons ] ;
 SubDirHdrs [ FDirName $(TOP) src shared network ] ;
 
 
-## SVN revision
-#local svnRevisionFile = [ FGristFiles svn_revision ] ;
-#MakeLocate $(svnRevisionFile) : $(LOCATE_TARGET) ;
-#CreateSVNRevisionFile $(svnRevisionFile) ;
-
-
 StaticLibrary libshared_common.a :
 	common.cpp
 	common_constants.cpp
@@ -88,7 +82,6 @@ StaticLibrary libshared_common.a :
 	StatusOutput.cpp
 	StringTokenizer.cpp
 	SHA256.cpp
-	svn_revision.cpp
 #	trace.c
 ;
 

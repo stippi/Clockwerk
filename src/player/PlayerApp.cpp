@@ -14,7 +14,6 @@
 #include <Screen.h>
 
 #include "common.h"
-#include "svn_revision.h"
 
 #include "AutoDeleter.h"
 #include "Clip.h"
@@ -341,7 +340,7 @@ PlayerApp::ReadyToRun()
 	}
 	logFilePathFile.Unset();
 
-	print_info("player started, SVN: %ld\n", kSVNRevision);
+	print_info("player started\n");
 
 	fObjectLibrary = new ServerObjectManager();
 	fObjectLibrary->SetLocker(fDocument);

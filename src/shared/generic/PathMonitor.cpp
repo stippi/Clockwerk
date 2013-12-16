@@ -41,7 +41,6 @@ using namespace std;
 namespace BPrivate {
 
 #if __GNUC__ > 3
-	bool operator<(const node_ref& a, const node_ref& b);
 	class node_ref_less : public binary_function<node_ref, node_ref, bool> 
 	{
 		public:
@@ -136,22 +135,6 @@ set_entry(node_ref& nodeRef, const char* name, BEntry& entry)
 
 	return entry.SetTo(&ref, true);
 }
-
-
-#if !defined(B_ZETA_VERSION_1_2_0) ||  B_BEOS_VERSION < B_ZETA_VERSION_1_2_0
-
-bool
-operator<(const node_ref& a, const node_ref& b)
-{
-	if (a.device < b.device)
-		return true;
-	if (a.device == b.device && a.node < b.node)
-		return true;
-
-	return false;
-}
-
-#endif	// ZETA
 
 
 bool

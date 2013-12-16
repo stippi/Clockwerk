@@ -13,12 +13,13 @@
 #include FT_SFNT_NAMES_H
 #include <freetype/ttnameid.h>
 
-#include <FindDirectory.h>
 #include <Directory.h>
 //#include <Menu.h>
 //#include <MenuItem.h>
 #include <Path.h>
+#include <PathFinder.h>
 #include <String.h>
+#include <StringList.h>
 #include <UTF8.h>
 
 #include "common.h"
@@ -328,20 +329,13 @@ FontManager::_UpdateThreadEntry(void* cookie)
 	FontManager* fm = (FontManager*)cookie;
 	if (fm && fm->Lock()) {
 //bigtime_t now = system_time();
-		// update from system, common and user fonts folders
-		BPath path;
-		if (find_directory(B_BEOS_FONTS_DIRECTORY, &path) >= B_OK) {
-			BDirectory fontFolder(path.Path());
-			fm->_Update(&fontFolder);
-		}
-		if (find_directory(B_COMMON_FONTS_DIRECTORY, &path) >= B_OK) {
-			BDirectory fontFolder(path.Path());
-			fm->_Update(&fontFolder);
-		}
-/*			if (find_directory(B_USER_FONTS_DIRECTORY, &path) >= B_OK) {
-			BDirectory fontFolder(path.Path());
-			_Update(&fontFolder);
-		}*/
+		// Use font files from system, common and user fonts folders
+		BStringList paths;
+		BPathFinder::FindPaths(B_FIND_PATH_FONTS_DIRECTORY, NULL,
+			B_FIND_PATH_EXISTING_ONLY, paths);
+		int32 count = paths.CountStrings();
+		for (int32 i = 0; i < count; i++)
+			fm->_Update(paths.StringAt(i));
 /*printf("scanning fonts: %lld µsecs\n", system_time() - now);
 for (int32 i = 0; font_file* ff = (font_file*)fFontFiles.ItemAt(i); i++) {
 	printf("fond %ld: \"%s, %s\"\n", i, ff->family_name, ff->style_name);
@@ -353,19 +347,20 @@ for (int32 i = 0; font_file* ff = (font_file*)fFontFiles.ItemAt(i); i++) {
 
 //_Update
 void
-FontManager::_Update(BDirectory* fontFolder)
+FontManager::_Update(const char* path)
 {
-	fontFolder->Rewind();
+	BDirectory directory(path);
+	
 	// scan the entire folder for font files
 	BEntry entry;
-	while (fontFolder->GetNextEntry(&entry) >= B_OK) {
+	while (directory.GetNextEntry(&entry) >= B_OK) {
 		if (entry.IsDirectory()) {
 			// recursive scan of sub folders
-			BDirectory subFolder(&entry);
-//entry_ref ref;
-//entry.GetRef(&ref);
-//printf("scanning subfolder: %s\n", ref.name);
-			_Update(&subFolder);
+			BPath path;
+			if (entry.GetPath(&path) == B_OK) {
+printf("scanning subfolder: %s\n", path.Path());
+				_Update(path.Path());
+			}
 		} else {
 			_AddFont(entry);
 		}

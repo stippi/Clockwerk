@@ -79,7 +79,7 @@ public:
 			}
 
 			MessageLayoutItem* item = NULL;
-			char placeholder;
+			char placeholder = 0;
 			ssize_t placeholderLen = _ParsePlaceholder(percent, placeholder,
 				item);
 			if (placeholderLen < 0) {
