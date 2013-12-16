@@ -22,8 +22,6 @@
 #include "ClockRenderer.h"
 #include "ColorClip.h"
 #include "ColorRenderer.h"
-#include "ExecuteClip.h"
-#include "ExecuteRenderer.h"
 #include "FileBasedClip.h"
 #include "MediaClip.h"
 #include "Painter.h"
@@ -260,9 +258,6 @@ RenderPlaylistItem::_CreateRenderer(color_space format,
 	} else if (WeatherClip* weatherClip
 		= dynamic_cast<WeatherClip*>(clip)) {
 		renderer = new (nothrow) WeatherRenderer(clipItem, weatherClip);
-	} else if (ExecuteClip* executeClip
-		= dynamic_cast<ExecuteClip*>(clip)) {
-		renderer = new (nothrow) ExecuteRenderer(clipItem, executeClip);
 	} else {
 		// fall back to using a dummy ClipRenderer (doesn't render anything)
 		renderer = new (nothrow) ClipRenderer(clipItem, clip);

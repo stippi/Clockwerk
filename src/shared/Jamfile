@@ -106,7 +106,6 @@ StaticLibrary libshared_player_editor.a :
 	Clip.cpp
 	ClockClip.cpp
 	ColorClip.cpp
-	ExecuteClip.cpp
 	FileBasedClip.cpp
 	MediaClip.cpp
 	ScrollingTextClip.cpp
@@ -237,7 +236,6 @@ StaticLibrary libshared_player_editor.a :
 	ClipRendererCache.cpp
 	ClockRenderer.cpp
 	ColorRenderer.cpp
-	ExecuteRenderer.cpp
 	PlaylistClipRenderer.cpp
 	RenderPlaylist.cpp
 	RenderPlaylistItem.cpp

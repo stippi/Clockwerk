@@ -1449,10 +1449,6 @@ MainWindow::_CreateMenuBar(BRect frame)
 
 	fCreateMenu->AddSeparatorItem();
 
-	message = new BMessage(MSG_CREATE_OBJECT);
-	message->AddString("type", "ExecuteClip");
-	fCreateMenu->AddItem(new BMenuItem("Executer", message));
-
 	fCreateMenu->SetTargetForItems(this);
 	fClipMenu->AddItem(fCreateMenu);
 

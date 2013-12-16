@@ -28,7 +28,6 @@
 #include "ClockClip.h"
 #include "ColorClip.h"
 #include "CommonPropertyIDs.h"
-#include "ExecuteClip.h"
 #include "MediaClip.h"
 #include "Playlist.h"
 #include "ScrollingTextClip.h"
@@ -360,20 +359,6 @@ ClipGroup::_CreateTypeMenu() const
 	menu->AddItem(item);
 	item->SetMarked(true);
 
-#if !(CLOCKWERK_STAND_ALONE)
-	menu->AddSeparatorItem();
-
-	message = new BMessage(MSG_SET_CLIP_TYPE);
-	message->AddInt32("type", CLIP_TYPE_ALL_FOR_UPLOAD);
-	item = new BMenuItem("All to be uploaded", message);
-	menu->AddItem(item);
-
-	message = new BMessage(MSG_SET_CLIP_TYPE);
-	message->AddInt32("type", CLIP_TYPE_ALL_NEW);
-	item = new BMenuItem("All new", message);
-	menu->AddItem(item);
-#endif
-
 	menu->AddSeparatorItem();
 
 	message = new BMessage(MSG_SET_CLIP_TYPE);
@@ -426,13 +411,6 @@ ClipGroup::_CreateTypeMenu() const
 	item = new BMenuItem("Weathers", message);
 	menu->AddItem(item);
 
-	menu->AddSeparatorItem();
-
-	message = new BMessage(MSG_SET_CLIP_TYPE);
-	message->AddInt32("type", CLIP_TYPE_EXECUTE);
-	item = new BMenuItem("Executers", message);
-	menu->AddItem(item);
-
 	return menu;
 }
 
@@ -463,8 +441,6 @@ ClipGroup::_TypeForTypeString(const BString& type) const
 		return CLIP_TYPE_CLOCK;
 	} else if (type == "ColorClip") {
 		return CLIP_TYPE_COLOR;
-	} else if (type == "ExecuteClip") {
-		return CLIP_TYPE_EXECUTE;
 	} else if (type == "MediaClip") {
 		return CLIP_TYPE_MEDIA;
 	} else if (type == "ScrollingTextClip") {
@@ -562,15 +538,6 @@ class ColorSorter : public ClipListView::ItemSorter {
 	}
 };
 
-class ExecuteSorter : public ClipListView::ItemSorter {
-	virtual	int32 IndexForClip(ClipListView* listView, Clip* clip) const
-	{
-		if (dynamic_cast<ExecuteClip*>(clip))
-			return ItemSorter::IndexForClip(listView, clip);
-		return -1;
-	}
-};
-
 class TimerSorter : public ClipListView::ItemSorter {
 	virtual	int32 IndexForClip(ClipListView* listView, Clip* clip) const
 	{
@@ -658,9 +625,6 @@ ClipGroup::_SorterForType(int32 type)
 			break;
 		case CLIP_TYPE_COLOR:
 			sorter = new ColorSorter;
-			break;
-		case CLIP_TYPE_EXECUTE:
-			sorter = new ExecuteSorter;
 			break;
 		case CLIP_TYPE_MEDIA:
 			sorter = new MediaSorter;
