@@ -9,6 +9,7 @@ License: GPL v2
 To compile on Haiku:
 
 setarch x86
+
 jam
 
 
