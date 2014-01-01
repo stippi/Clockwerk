@@ -28,8 +28,17 @@ if $(OSPLAT) = X86 {
 		}
 		NETWORK_LIBS += network ;
 		PLATFORM = haiku ;
-		COMMON_FOLDER = /boot/common ;
-		SYSHDRS += /boot/system/develop/headers/freetype2 ;
+		
+		local freeTypeDir ;
+		
+		if $(IS_GCC_4_PLATFORM) {
+			freeTypeDir = /boot/system/develop/headers/x86/freetype2 ;
+		}
+		else {
+			freeTypeDir = /boot/system/develop/headers/freetype2 ;
+		}
+		
+		SYSHDRS +=  $(freeTypeDir) ;		
 	}
 	# check for BONE...
 	local haveBone = [ GLOB /boot/develop/headers/be/bone/arpa : inet.h ] ;
