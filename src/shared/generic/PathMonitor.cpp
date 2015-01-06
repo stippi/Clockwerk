@@ -756,7 +756,7 @@ BPathMonitor::~BPathMonitor()
 /*static*/ status_t
 BPathMonitor::_InitIfNeeded()
 {
-	static vint32 lock = 0;
+	static int32 lock = 0;
 	
 	if (sLocker != NULL)
 		return B_OK;

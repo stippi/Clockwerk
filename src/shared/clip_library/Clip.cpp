@@ -15,7 +15,7 @@
 #include "Property.h"
 
 // globals
-vint32 Clip::sUnamedClipCount = 0;
+int32 Clip::sUnamedClipCount = 0;
 
 // constructor
 Clip::Clip(const char* type, const char* name)
