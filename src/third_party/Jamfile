@@ -1,5 +1,3 @@
 SubDir TOP src third_party ;
 
 SubInclude TOP src third_party agg ;
-SubInclude TOP src third_party libjpeg ;
-#SubInclude TOP src third_party libjpeg-simd ;
