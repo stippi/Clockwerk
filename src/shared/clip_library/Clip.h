@@ -59,7 +59,7 @@ class Clip : public ServerObject,
 											   const uchar* iconData) const;
 
  private:
-	static	vint32				sUnamedClipCount;
+	static	int32				sUnamedClipCount;
 };
 
 #endif // CLIP_H

@@ -22,7 +22,7 @@
 #include "ServerObjectFactory.h"
 
 int64	ServerObjectManager::sBaseID(real_time_clock_usecs());
-vint32	ServerObjectManager::sNextID(0);
+int32	ServerObjectManager::sNextID(0);
 BString ServerObjectManager::sClientID("client0001");
 
 

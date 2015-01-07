@@ -27,9 +27,9 @@ class Referencable {
 	static	int32				DebuggedReferencableCount();
 
  private:
-			vint32				fReferenceCount;
+			int32				fReferenceCount;
 			bool				fDebug;
-	static	vint32				sDebuggedReferencableCount;
+	static	int32				sDebuggedReferencableCount;
 };
 
 // Acquire

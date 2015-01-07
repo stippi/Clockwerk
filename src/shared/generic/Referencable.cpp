@@ -10,7 +10,7 @@
 #include "Referencable.h"
 
 
-vint32
+int32
 Referencable::sDebuggedReferencableCount = 0;
 
 

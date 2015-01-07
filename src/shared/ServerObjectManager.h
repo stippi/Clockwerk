@@ -139,7 +139,7 @@ class ServerObjectManager {
 			BList				fListeners;
 
 	static	int64				sBaseID;
-	static	vint32				sNextID;
+	static	int32				sNextID;
 	static	BString				sClientID;
 
 			bool				fStateNeedsSaving;
