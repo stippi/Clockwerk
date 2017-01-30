@@ -45,7 +45,7 @@ Referencable::Release()
 {
 	int32 previousRefCount = atomic_add(&fReferenceCount, -1);
 	if (fDebug)
-		printf("Referencable::Release() - %ld\n", previousRefCount);
+		printf("Referencable::Release() - %" B_PRId32 "\n", previousRefCount);
 	if (previousRefCount == 1) {
 		if (fDebug)
 			atomic_add(&sDebuggedReferencableCount, -1);

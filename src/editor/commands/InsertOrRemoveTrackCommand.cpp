@@ -15,7 +15,7 @@ InsertOrRemoveTrackCommand::InsertOrRemoveTrackCommand(Playlist* playlist,
 	  fPlaylist(playlist),
 	  fTrack(track),
 	  fInsert(insert),
-	  fTrackProperties(0UL)
+	  fTrackProperties((uint32)0)
 {
 	if (fPlaylist && !insert) {
 		TrackProperties* original = fPlaylist->PropertiesForTrack(fTrack);

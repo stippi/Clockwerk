@@ -86,7 +86,7 @@ VideoConsumer::~VideoConsumer()
 
 // AddOn
 BMediaAddOn*
-VideoConsumer::AddOn(long *cookie) const
+VideoConsumer::AddOn(int32 *cookie) const
 {
 	FUNCTION("VideoConsumer::AddOn\n");
 	// do the right thing if we're ever used with an add-on
@@ -336,7 +336,7 @@ VideoConsumer::CreateBuffers(
 	if ((status = fBuffers->GetBufferList(kBufferCount, buffList)) == B_OK) {
 		for (uint32 i = 0; i < kBufferCount; i++) {
 			if (buffList[i] != NULL) {
-				fBufferMap[i] = (uint32)buffList[i];
+				fBufferMap[i] = (addr_t)buffList[i];
 				PROGRESS(" i = %d buffer = %08lx\n", i, fBufferMap[i]);
 			} else {
 				ERROR("VideoConsumer::CreateBuffers ERROR MAPPING RING BUFFER\n");
@@ -611,7 +611,7 @@ VideoConsumer::HandleEvent(
 				uint32 index = 0;
 				fOurBuffers = true;
 				while(index < kBufferCount)
-					if ((uint32)buffer == fBufferMap[index])
+					if ((addr_t)buffer == fBufferMap[index])
 						break;
 					else
 						index++;

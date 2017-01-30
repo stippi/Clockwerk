@@ -31,7 +31,7 @@ if $(OSPLAT) = X86 {
 		
 		local freeTypeDir ;
 		
-		if $(IS_GCC_4_PLATFORM) {
+		if $(IS_GCC_4_PLATFORM) && ! $(IS_X86_64) {
 			freeTypeDir = /boot/system/develop/headers/x86/freetype2 ;
 		}
 		else {

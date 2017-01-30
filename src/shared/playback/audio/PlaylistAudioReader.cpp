@@ -42,8 +42,8 @@ class SoundItem : public Observer {
 
 	inline bool operator<(const SoundItem& other) const
 	{
-		return ((uint32)item < (uint32)other.item
-			|| ((uint32)item == (uint32)other.item && offset < other.offset));
+		return ((addr_t)item < (addr_t)other.item
+			|| ((addr_t)item == (addr_t)other.item && offset < other.offset));
 	}
 
 	inline bool operator>(const SoundItem& other) const

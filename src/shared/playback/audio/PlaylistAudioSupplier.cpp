@@ -102,7 +102,7 @@ buffer, frameCount, startTime, endTime);
 	int64 framesRead = 0;
 	while (!playingIntervals.IsEmpty()) {
 		PlayingInterval* interval
-			= (PlayingInterval*)playingIntervals.RemoveItem(0L);
+			= (PlayingInterval*)playingIntervals.RemoveItem((int32)0);
 		if (error != B_OK) {
 			delete interval;
 			continue;

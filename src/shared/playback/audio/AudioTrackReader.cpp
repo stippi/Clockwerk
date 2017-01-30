@@ -109,7 +109,7 @@ ldebug("AudioTrackReader::Read() done\n");
 	pos += fOutOffset;
 	// Fill the frames after the end of the track with silence.
 	if (pos + frames > fCountFrames) {
-		int64 size = std::max(0LL, fCountFrames - pos);
+		int64 size = std::max((int64)0, fCountFrames - pos);
 		ReadSilence(SkipFrames(buffer, size), frames - size);
 		frames = size;
 	}

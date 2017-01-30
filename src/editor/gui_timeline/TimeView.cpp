@@ -402,7 +402,7 @@ TimeView::MouseDown(BPoint where)
 		BRect r(Bounds());
 		int32 count = fKeyPoints.CountItems();
 		for (int32 i = 0; i < count; i++) {
-			int32 pos = (int32)fKeyPoints.ItemAtFast(i);
+			int32 pos = (int32)(addr_t)fKeyPoints.ItemAtFast(i);
 			r.left = pos - 4;
 			r.right = pos + 4;
 			if (r.Contains(where)) {

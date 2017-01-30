@@ -199,7 +199,7 @@ rule ResComp
 # considered linker scripts, and thus we can use preprocessor features.
 actions ResComp1
 {
-	cat "$(2)" | $(CC) -E $(CCDEFS) $(HDRS) - | egrep -v '^#' | rc -o "$(1)" - ;
+	cat "$(2)" | $(CC) -E $(CCDEFS) $(HDRS) - | egrep -va '^#' | rc -o "$(1)" - ;
 }
 
 rule XRes
