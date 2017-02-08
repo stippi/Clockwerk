@@ -109,7 +109,7 @@ PlaylistItemAudioReader::Read(void* buffer, int64 pos, int64 frames)
 				break;
 			case media_raw_audio_format::B_AUDIO_INT:
 				possibleGain = calc_possible_gain((int32*)buffer,
-					channelCount, (int32)frames, LONG_MIN, LONG_MAX);
+					channelCount, (int32)frames, INT32_MIN, INT32_MAX);
 				break;
 			case media_raw_audio_format::B_AUDIO_SHORT:
 				possibleGain = calc_possible_gain((int16*)buffer,

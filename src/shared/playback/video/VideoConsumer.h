@@ -34,7 +34,7 @@ class VideoConsumer : public BMediaEventLooper, public BBufferConsumer {
 /*	BMediaNode */
  public:
 	
-	virtual	BMediaAddOn			*AddOn(long *cookie) const;
+	virtual	BMediaAddOn			*AddOn(int32 *cookie) const;
 	
  protected:
 
@@ -127,7 +127,7 @@ class VideoConsumer : public BMediaEventLooper, public BBufferConsumer {
 			BBitmap*			fBitmap[kBufferCount];
 			bool				fOurBuffers;
 			BBufferGroup*		fBuffers;
-			uint32				fBufferMap[kBufferCount];	
+			addr_t				fBufferMap[kBufferCount];	
 
 			NodeManager*		fManager;
 			BLocker				fTargetLock;	// locks the following variable

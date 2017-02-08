@@ -925,7 +925,7 @@ ColumnListView::SetSelectionMode(selection_mode mode)
 int32
 ColumnListView::CurrentSelection(int32 index) const
 {
-	return (int32)fSelectedItems.ItemAt(index) - 1;
+	return (int32)(addr_t)fSelectedItems.ItemAt(index) - 1;
 }
 
 // Deselect
@@ -1007,7 +1007,7 @@ ColumnListView::Select(int32 index, bool extend)
 		}
 		if (!item->IsSelected()) {
 			int32 insertionIndex = _FindSelectionInsertionIndex(index);
-			fSelectedItems.AddItem((void*)(index + 1), insertionIndex);
+			fSelectedItems.AddItem((void*)(addr_t)(index + 1), insertionIndex);
 			item->SetSelected(true);
 			InvalidateItem(item);
 			_InternalSelectionChanged();
@@ -1030,7 +1030,7 @@ ColumnListView::Select(int32 start, int32 finish, bool extend)
 		for (int32 i = start; i <= finish; i++) {
 			ColumnListItem* item = ItemAt(i);
 			if (!item->IsSelected()) {
-				fSelectedItems.AddItem((void*)(i + 1), insertionIndex);
+				fSelectedItems.AddItem((void*)(addr_t)(i + 1), insertionIndex);
 				item->SetSelected(true);
 			}
 			insertionIndex++;
@@ -1836,7 +1836,7 @@ ColumnListView::_ReindexSelectedItems(int32 index, int32 offset)
 		int32 item = CurrentSelection(i);
 		if (item >= index) {
 			fSelectedItems.RemoveItem(i);
-			fSelectedItems.AddItem((void*)(item + offset + 1), i);
+			fSelectedItems.AddItem((void*)(addr_t)(item + offset + 1), i);
 		}
 	}
 }
@@ -1851,7 +1851,7 @@ ColumnListView::_RebuildSelectionList()
 	fSelectedItems.MakeEmpty();
 	for (int32 i = 0; ColumnListItem* item = ItemAt(i); i++) {
 		if (item->IsSelected())
-			fSelectedItems.AddItem((void*)(i + 1));
+			fSelectedItems.AddItem((void*)(addr_t)(i + 1));
 	}
 }
 

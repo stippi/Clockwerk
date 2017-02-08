@@ -28,7 +28,7 @@ ScopeMenuField::SetScopes(const BMessage* _scopes)
 {
 	BMenu* menu = Menu();
 	// clean out menu
-	while (BMenuItem* item = menu->RemoveItem(0L))
+	while (BMenuItem* item = menu->RemoveItem((int32)0))
 		delete item;
 
 	BMessage scopes(*_scopes);

@@ -51,7 +51,7 @@ StretchingPlaylist::ValidateItemLayout()
 	// make sure we know the correct total duration for the current layout
 	Playlist::ValidateItemLayout();
 
-	int64 overriddenDuration = Value(PROPERTY_DURATION, 0LL);
+	int64 overriddenDuration = Value(PROPERTY_DURATION, (int64)0);
 	if (overriddenDuration == 0)
 		return;
 

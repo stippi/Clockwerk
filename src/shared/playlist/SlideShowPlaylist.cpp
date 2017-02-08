@@ -32,12 +32,12 @@ SlideShowPlaylist::~SlideShowPlaylist()
 void
 SlideShowPlaylist::ValidateItemLayout()
 {
-	int64 duration = Value(PROPERTY_DURATION, 0LL);
+	int64 duration = Value(PROPERTY_DURATION, (int64)0);
 	if (duration == 0)
 		return;
 
 	int64 transitionDuration
-		= Value(PROPERTY_TRANSITION_DURATION, 0LL);
+		= Value(PROPERTY_TRANSITION_DURATION, (int64)0);
 	// TODO: transition mode...
 
 	int32 count = CountItems();
