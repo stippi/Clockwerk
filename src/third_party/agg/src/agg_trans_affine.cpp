@@ -67,26 +67,6 @@ namespace agg
     }
 
     //------------------------------------------------------------------------
-    const trans_affine& trans_affine::rect_to_rect(double x1, double y1, 
-                                                   double x2, double y2, 
-                                                   double x3, double y3, 
-                                                   double x4, double y4)
-    {
-        double src[6];
-        src[0] = x1; src[1] = y1;
-        src[2] = x2; src[3] = y1;
-        src[4] = x2; src[5] = y2;
-
-        double dst[6];
-        dst[0] = x3; dst[1] = y3;
-        dst[2] = x4; dst[3] = y3;
-        dst[4] = x4; dst[5] = y4;
-
-        parl_to_parl(src, dst);
-        return *this;
-    }
-
-    //------------------------------------------------------------------------
     const trans_affine& trans_affine::multiply(const trans_affine& m)
     {
         double t0 = m0 * m.m0 + m1 * m.m2;

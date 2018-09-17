@@ -1,6 +1,6 @@
 //----------------------------------------------------------------------------
-// Anti-Grain Geometry - Version 2.4
-// Copyright (C) 2002-2005 Maxim Shemanarev (http://www.antigrain.com)
+// Anti-Grain Geometry - Version 2.2
+// Copyright (C) 2002-2004 Maxim Shemanarev (http://www.antigrain.com)
 //
 // Permission to copy, use, modify, sell and distribute this software 
 // is granted provided this copyright notice appears in all copies. 
@@ -31,8 +31,10 @@ namespace agg
 {
 
     //--------------------------------------------------------------color_conv
-    template<class RenBuf, class CopyRow> 
-    void color_conv(RenBuf* dst, const RenBuf* src, CopyRow copy_row_functor)
+    template<class CopyRow> 
+    void color_conv(rendering_buffer* dst, 
+                    const rendering_buffer* src,
+                    CopyRow copy_row_functor)
     {
         unsigned width = src->width();
         unsigned height = src->height();
@@ -45,9 +47,7 @@ namespace agg
             unsigned y;
             for(y = 0; y < height; y++)
             {
-                copy_row_functor(dst->row_ptr(0, y, width), 
-                                 src->row_ptr(y), 
-                                 width);
+                copy_row_functor(dst->row(y), src->row(y), width);
             }
         }
     }
@@ -55,8 +55,8 @@ namespace agg
 
     //---------------------------------------------------------color_conv_row
     template<class CopyRow> 
-    void color_conv_row(int8u* dst, 
-                        const int8u* src,
+    void color_conv_row(unsigned char* dst, 
+                        const unsigned char* src,
                         unsigned width,
                         CopyRow copy_row_functor)
     {
@@ -68,8 +68,8 @@ namespace agg
     template<int BPP> class color_conv_same
     {
     public:
-        void operator () (int8u* dst, 
-                          const int8u* src,
+        void operator () (unsigned char* dst, 
+                          const unsigned char* src,
                           unsigned width) const
         {
             memmove(dst, src, width*BPP);

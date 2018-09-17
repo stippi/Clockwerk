@@ -38,7 +38,7 @@ namespace agg
             pixfmt_type::make_pix(m_bk_buf, bk);
         }
 
-        void set_source(const pixfmt_type& pixf)
+        void attach(const pixfmt_type& pixf)
         {
             m_pixf = &pixf;
         }
@@ -116,7 +116,7 @@ namespace agg
         image_accessor_no_clip() {}
         image_accessor_no_clip(const pixfmt_type& pixf) : m_pixf(&pixf) {}
 
-        void set_source(const pixfmt_type& pixf)
+        void attach(const pixfmt_type& pixf)
         {
             m_pixf = &pixf;
         }
@@ -161,7 +161,7 @@ namespace agg
         image_accessor_clone() {}
         image_accessor_clone(const pixfmt_type& pixf) : m_pixf(&pixf) {}
 
-        void set_source(const pixfmt_type& pixf)
+        void attach(const pixfmt_type& pixf)
         {
             m_pixf = &pixf;
         }
@@ -184,7 +184,7 @@ namespace agg
             m_x = m_x0 = x;
             m_y = y;
             if(y >= 0 && y < (int)m_pixf->height() &&
-               x >= 0 && x+len <= (int)m_pixf->width())
+               x >= 0 && (int)(x+len) <= (int)m_pixf->width())
             {
                 return m_pix_ptr = m_pixf->pix_ptr(x, y);
             }
@@ -239,7 +239,7 @@ namespace agg
             m_wrap_y(pixf.height())
         {}
 
-        void set_source(const pixfmt_type& pixf)
+        void attach(const pixfmt_type& pixf)
         {
             m_pixf = &pixf;
         }

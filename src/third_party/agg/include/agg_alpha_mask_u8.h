@@ -70,7 +70,7 @@ namespace agg
         {
             if(x >= 0 && y >= 0 && 
                x < (int)m_rbuf->width() && 
-               y <= (int)m_rbuf->height())
+               y < (int)m_rbuf->height())
             {
                 return (cover_type)m_mask_function.calculate(
                                         m_rbuf->row_ptr(y) + x * Step + Offset);
@@ -83,7 +83,7 @@ namespace agg
         {
             if(x >= 0 && y >= 0 && 
                x < (int)m_rbuf->width() && 
-               y <= (int)m_rbuf->height())
+               y < (int)m_rbuf->height())
             {
                 return (cover_type)((cover_full + val * 
                                      m_mask_function.calculate(

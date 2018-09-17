@@ -20,7 +20,7 @@
 #ifndef AGG_RENDERING_BUFFER_INCLUDED
 #define AGG_RENDERING_BUFFER_INCLUDED
 
-#include "agg_basics.h"
+#include "agg_array.h"
 
 namespace agg
 {
@@ -40,30 +40,22 @@ namespace agg
         };
 
         //-------------------------------------------------------------------
-        ~row_ptr_cache()
-        {
-            delete [] m_rows;
-        }
-
-        //-------------------------------------------------------------------
         row_ptr_cache() :
             m_buf(0),
-            m_rows(0),
+            m_rows(),
             m_width(0),
             m_height(0),
-            m_stride(0),
-            m_max_height(0)
+            m_stride(0)
         {
         }
 
         //--------------------------------------------------------------------
         row_ptr_cache(T* buf, unsigned width, unsigned height, int stride) :
             m_buf(0),
-            m_rows(0),
+            m_rows(),
             m_width(0),
             m_height(0),
-            m_stride(0),
-            m_max_height(0)
+            m_stride(0)
         {
             attach(buf, width, height, stride);
         }
@@ -75,20 +67,19 @@ namespace agg
             m_width = width;
             m_height = height;
             m_stride = stride;
-            if(height > m_max_height)
+            if(height > m_rows.size())
             {
-                delete [] m_rows;
-                m_rows = new T* [m_max_height = height];
+                m_rows.resize(height);
             }
 
             T* row_ptr = m_buf;
 
             if(stride < 0)
             {
-                row_ptr = m_buf - (height - 1) * stride;
+                row_ptr = m_buf - int(height - 1) * stride;
             }
 
-            T** rows = m_rows;
+            T** rows = &m_rows[0];
 
             while(height--)
             {
@@ -115,7 +106,7 @@ namespace agg
         row_data row    (int y) const { return row_data(0, m_width-1, m_rows[y]); }
 
         //--------------------------------------------------------------------
-        T const* const* rows() const { return m_rows; }
+        T const* const* rows() const { return &m_rows[0]; }
 
         //--------------------------------------------------------------------
         template<class RenBuf>
@@ -154,21 +145,13 @@ namespace agg
             }
         }
 
-
     private:
         //--------------------------------------------------------------------
-        // Prohibit copying
-        row_ptr_cache(const row_ptr_cache<T>&);
-        const row_ptr_cache<T>& operator = (const row_ptr_cache<T>&);
-
-    private:
-        //--------------------------------------------------------------------
-        T*       m_buf;        // Pointer to renrdering buffer
-        T**      m_rows;       // Pointers to each row of the buffer
-        unsigned m_width;      // Width in pixels
-        unsigned m_height;     // Height in pixels
-        int      m_stride;     // Number of bytes per row. Can be < 0
-        unsigned m_max_height; // The maximal height (currently allocated)
+        T*            m_buf;        // Pointer to renrdering buffer
+        pod_array<T*> m_rows;       // Pointers to each row of the buffer
+        unsigned      m_width;      // Width in pixels
+        unsigned      m_height;     // Height in pixels
+        int           m_stride;     // Number of bytes per row. Can be < 0
     };
 
 

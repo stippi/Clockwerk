@@ -48,6 +48,25 @@ snap_scale(double scale)
 	return scale * sign;
 }
 
+
+// from 2.x agg_trans_affine.cpp
+static inline void
+rect_to_rect(agg::trans_affine& a, double x1, double y1,
+	double x2, double y2, double x3, double y3,
+	double x4, double y4) {
+	double src[6];
+	src[0] = x1; src[1] = y1;
+	src[2] = x2; src[3] = y1;
+	src[4] = x2; src[5] = y2;
+
+	double dst[6];
+	dst[0] = x3; dst[1] = y3;
+	dst[2] = x4; dst[3] = y3;
+	dst[4] = x4; dst[5] = y4;
+
+	a.parl_to_parl(src, dst);
+}
+
 //------------------------------------------------------------------
 // DragState
 
@@ -200,7 +219,7 @@ DragCornerState::DragTo(BPoint current, uint32 modifiers)
 	// distortion of the box with the opposite
 	// corner of the one being dragged staying fixed
 	AffineTransform s;
-	s.rect_to_rect(oldBox.left, oldBox.top, oldBox.right, oldBox.bottom,
+	rect_to_rect(s, oldBox.left, oldBox.top, oldBox.right, oldBox.bottom,
 				   newBox.left, newBox.top, newBox.right, newBox.bottom);
 
 	// construct a transformation that
@@ -473,7 +492,7 @@ DragSideState::DragTo(BPoint current, uint32 modifiers)
 	// distortion of the box with the opposite
 	// corner of the one being dragged staying fixed
 	AffineTransform s;
-	s.rect_to_rect(oldBox.left, oldBox.top, oldBox.right, oldBox.bottom,
+	rect_to_rect(s, oldBox.left, oldBox.top, oldBox.right, oldBox.bottom,
 				   newBox.left, newBox.top, newBox.right, newBox.bottom);
 
 	// construct a transformation that

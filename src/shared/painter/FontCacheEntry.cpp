@@ -82,7 +82,7 @@ class FontCacheEntry::GlyphCachePool {
 	}
 
  private:
-	agg::pod_allocator		fAllocator;
+	agg::block_allocator	fAllocator;
 	GlyphCache**			fGlyphs[256];
 };
 

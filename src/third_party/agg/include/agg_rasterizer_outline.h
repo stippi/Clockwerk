@@ -28,8 +28,9 @@ namespace agg
             m_start_x(0), 
             m_start_y(0), 
             m_vertices(0)
-        {
-        }
+        {}
+        void attach(Renderer& ren) { m_ren = &ren; }
+
 
         //--------------------------------------------------------------------
         void move_to(int x, int y)
