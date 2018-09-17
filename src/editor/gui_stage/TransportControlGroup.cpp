@@ -284,7 +284,7 @@ TransportControlGroup::SetEnabled(bool enable)
 	if (!enable)
 		SetEnabled((uint32)0);
 	else
-		SetEnabled(0xffffffff);
+		SetEnabled((uint32)0xffffffff);
 }
 
 
