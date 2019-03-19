@@ -25,8 +25,7 @@ namespace agg
     {
     public:
         conv_unclose_polygon(VertexSource& vs) : m_source(&vs) {}
-
-        void set_source(VertexSource& source) { m_source = &source; }
+        void attach(VertexSource& source) { m_source = &source; }
 
         void rewind(unsigned path_id)
         {

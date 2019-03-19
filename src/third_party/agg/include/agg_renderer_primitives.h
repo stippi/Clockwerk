@@ -41,8 +41,8 @@ namespace agg
             m_line_color(),
             m_curr_x(0),
             m_curr_y(0)
-        {
-        }
+        {}
+        void attach(base_ren_type& ren) { m_ren = &ren; }
 
         //--------------------------------------------------------------------
         static int coord(double c) 

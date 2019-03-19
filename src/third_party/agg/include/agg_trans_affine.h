@@ -137,12 +137,6 @@ namespace agg
                                          double x1, double y1, 
                                          double x2, double y2);
 
-        const trans_affine& rect_to_rect(double x1, double y1, 
-                                         double x2, double y2,
-                                         double x3, double y3,
-                                         double x4, double y4);
-
-
 
         //------------------------------------------ Operations
         // Reset - actually load an identity matrix
@@ -201,14 +195,14 @@ namespace agg
 
         // Multiply current matrix to another one and return
         // the result in a separete matrix.
-        trans_affine operator * (const trans_affine& m)
+        trans_affine operator * (const trans_affine& m) const
         {
             return trans_affine(*this).multiply(m);
         }
 
         // Multiply current matrix to inverse of another one 
         // and return the result in a separete matrix.
-        trans_affine operator / (const trans_affine& m)
+        trans_affine operator / (const trans_affine& m) const
         {
             return trans_affine(*this).multiply_inv(m);
         }

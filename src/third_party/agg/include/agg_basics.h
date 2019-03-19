@@ -19,6 +19,43 @@
 #include <math.h>
 #include "agg_config.h"
 
+//---------------------------------------------------------AGG_CUSTOM_ALLOCATOR
+#ifdef AGG_CUSTOM_ALLOCATOR
+#include "agg_allocator.h"
+#else
+namespace agg
+{
+    // The policy of all AGG containers and memory allocation strategy 
+    // in general is that no allocated data requires explicit construction.
+    // It means that the allocator can be really simple; you can even
+    // replace new/delete to malloc/free. The constructors and destructors 
+    // won't be called in this case, however everything will remain working. 
+    // The second argument of deallocate() is the size of the allocated 
+    // block. You can use this information if you wish.
+    //------------------------------------------------------------pod_allocator
+    template<class T> struct pod_allocator
+    {
+        static T*   allocate(unsigned num)       { return new T [num]; }
+        static void deallocate(T* ptr, unsigned) { delete [] ptr;      }
+    };
+
+    // Single object allocator. It's also can be replaced with your custom
+    // allocator. The difference is that it can only allocate a single 
+    // object and the constructor and destructor must be called. 
+    // In AGG there is no need to allocate an array of objects with
+    // calling their constructors (only single ones). So that, if you
+    // replace these new/delete to malloc/free make sure that the in-place
+    // new is called and take care of calling the destructor too.
+    //------------------------------------------------------------obj_allocator
+    template<class T> struct obj_allocator
+    {
+        static T*   allocate()         { return new T; }
+        static void deallocate(T* ptr) { delete ptr;   }
+    };
+}
+#endif
+
+
 //-------------------------------------------------------- Default basic types
 //
 // If the compiler has different capacity of the basic types you can redefine
@@ -93,20 +130,30 @@ namespace agg
 #pragma warning(disable : 4035) //Disable warning "no return value"
     AGG_INLINE int iround(double v)              //-------iround
     {
+        int t;
         __asm fld   qword ptr [v]
-        __asm fistp dword ptr [ebp-8]
-        __asm mov eax, dword ptr [ebp-8]
+        __asm fistp dword ptr [t]
+        __asm mov eax, dword ptr [t]
     }
     AGG_INLINE unsigned uround(double v)         //-------uround
     {
+        unsigned t;
         __asm fld   qword ptr [v]
-        __asm fistp dword ptr [ebp-8]
-        __asm mov eax, dword ptr [ebp-8]
+        __asm fistp dword ptr [t]
+        __asm mov eax, dword ptr [t]
     }
 #pragma warning(pop)
+    AGG_INLINE int ifloor(double v)
+    {
+        return int(floor(v));
+    }
     AGG_INLINE unsigned ufloor(double v)         //-------ufloor
     {
         return unsigned(floor(v));
+    }
+    AGG_INLINE int iceil(double v)
+    {
+        return int(ceil(v));
     }
     AGG_INLINE unsigned uceil(double v)          //--------uceil
     {
@@ -121,9 +168,17 @@ namespace agg
     {
         return unsigned(v);
     }
+    AGG_INLINE int ifloor(double v)
+    {
+        return int(floor(v));
+    }
     AGG_INLINE unsigned ufloor(double v)
     {
         return unsigned(floor(v));
+    }
+    AGG_INLINE int iceil(double v)
+    {
+        return int(ceil(v));
     }
     AGG_INLINE unsigned uceil(double v)
     {
@@ -138,9 +193,18 @@ namespace agg
     {
         return unsigned(v + 0.5);
     }
+    AGG_INLINE int ifloor(double v)
+    {
+        int i = int(v);
+        return i - (i > v);
+    }
     AGG_INLINE unsigned ufloor(double v)
     {
         return unsigned(v);
+    }
+    AGG_INLINE int iceil(double v)
+    {
+        return int(ceil(v));
     }
     AGG_INLINE unsigned uceil(double v)
     {
@@ -164,7 +228,7 @@ namespace agg
     {
         AGG_INLINE static unsigned mul(unsigned a, unsigned b)
         {
-            register unsigned q = a * b + (1 << (Shift-1));
+            unsigned q = a * b + (1 << (Shift-1));
             return (q + (q >> Shift)) >> Shift;
         }
     };
@@ -190,7 +254,14 @@ namespace agg
     {
         poly_subpixel_shift = 8,                      //----poly_subpixel_shift
         poly_subpixel_scale = 1<<poly_subpixel_shift, //----poly_subpixel_scale 
-        poly_subpixel_mask  = poly_subpixel_scale-1,  //----poly_subpixel_mask 
+        poly_subpixel_mask  = poly_subpixel_scale-1   //----poly_subpixel_mask 
+    };
+
+    //----------------------------------------------------------filling_rule_e
+    enum filling_rule_e
+    {
+        fill_non_zero,
+        fill_even_odd
     };
 
     //-----------------------------------------------------------------------pi
@@ -211,15 +282,18 @@ namespace agg
     //----------------------------------------------------------------rect_base
     template<class T> struct rect_base
     {
+        typedef T            value_type;
         typedef rect_base<T> self_type;
-        T x1;
-        T y1;
-        T x2;
-        T y2;
+        T x1, y1, x2, y2;
 
         rect_base() {}
         rect_base(T x1_, T y1_, T x2_, T y2_) :
             x1(x1_), y1(y1_), x2(x2_), y2(y2_) {}
+
+        void init(T x1_, T y1_, T x2_, T y2_) 
+        {
+            x1 = x1_; y1 = y1_; x2 = x2_; y2 = y2_; 
+        }
 
         const self_type& normalize()
         {
@@ -241,6 +315,17 @@ namespace agg
         bool is_valid() const
         {
             return x1 <= x2 && y1 <= y2;
+        }
+
+        bool hit_test(T x, T y) const
+        {
+            return (x >= x1 && x <= x2 && y >= y1 && y <= y2);
+        }
+        
+        bool overlaps(const self_type& r) const
+        {
+            return !(r.x1 > x2 || r.x2 < x1
+                  || r.y1 > y2 || r.y2 < y1);
         }
     };
 
@@ -444,6 +529,30 @@ namespace agg
     typedef vertex_base<float>  vertex_f; //-----vertex_f
     typedef vertex_base<double> vertex_d; //-----vertex_d
 
+    //----------------------------------------------------------------row_info
+    template<class T> struct row_info
+    {
+        int x1, x2;
+        T* ptr;
+        row_info() {}
+        row_info(int x1_, int x2_, T* ptr_) : x1(x1_), x2(x2_), ptr(ptr_) {}
+    };
+
+    //----------------------------------------------------------const_row_info
+    template<class T> struct const_row_info
+    {
+        int x1, x2;
+        const T* ptr;
+        const_row_info() {}
+        const_row_info(int x1_, int x2_, const T* ptr_) : 
+            x1(x1_), x2(x2_), ptr(ptr_) {}
+    };
+
+    //------------------------------------------------------------is_equal_eps
+    template<class T> inline bool is_equal_eps(T v1, T v2, T epsilon)
+    {
+        return fabs(v1 - v2) <= double(epsilon);
+    }
 }
 
 
